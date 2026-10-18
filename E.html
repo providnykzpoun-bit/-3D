@@ -146,7 +146,7 @@
                 <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
             </div>
             <div class="badge" id="scoreBadge">Очки: 0</div>
-            <div class="badge" id="livesBadge" style="border-color: #ff007f; color: #ff007f;">❤️ 3</div>
+            <div class="badge" id="livesBadge" style="border-color: #ff007f; color: #ff007f;">❤️ 5</div>
         </div>
     </div>
 
@@ -158,7 +158,7 @@
     <!-- Меню старту -->
     <div class="overlay" id="startMenu">
         <h1 style="color: #ff007f; font-size: 32px; margin-bottom: 10px; text-transform: uppercase;">Space Striker 3D</h1>
-        <p style="color: #a5a5c7; margin-bottom: 20px; max-width: 300px;">Знищуйте ворожі кораблі, стріляйте лазером та набирайте максимум очок!</p>
+        <p style="color: #a5a5c7; margin-bottom: 20px; max-width: 300px;">Знищуйте ворогів, ловіть бонуси ❤️ та набирайте максимум очок!</p>
         <button class="btn-main" id="startBtn">ПОЧАТИ</button>
     </div>
 
@@ -198,7 +198,7 @@
         import * as THREE from 'three';
 
         let score = 0;
-        let lives = 3;
+        let lives = 5; // Тепер 5 життів!
         let isPlaying = false;
         let isPaused = false;
 
@@ -206,7 +206,7 @@
         let moveLeftFlag = false;
         let moveRightFlag = false;
 
-        // --- АУДІО СИСТЕМА (Без сторонніх файлів) ---
+        // --- АУДІО СИСТЕМА ---
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) {
@@ -248,6 +248,14 @@
                     gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
                     osc.start(now);
                     osc.stop(now + 0.3);
+                } else if (type === 'heal') { // Звук підбору життя
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
                 }
             } catch(e) {}
         }
@@ -298,6 +306,7 @@
 
         const enemies = [];
         const lasers = [];
+        const bonuses = []; // Списочок бонусів-сердечок
 
         function spawnEnemy() {
             if (!isPlaying || isPaused) return;
@@ -305,6 +314,17 @@
             enemy.position.set((Math.random() - 0.5) * 7, 0, -40);
             scene.add(enemy);
             enemies.push(enemy);
+        }
+
+        function spawnHeart(pos) {
+            // Рожево-зелена сяюча сфера (бонус +1 життя)
+            const heart = new THREE.Mesh(
+                new THREE.SphereGeometry(0.4, 12, 12),
+                new THREE.MeshStandardMaterial({ color: 0x00ffaa, emissive: 0x00ffaa, emissiveIntensity: 0.8 })
+            );
+            heart.position.copy(pos);
+            scene.add(heart);
+            bonuses.push(heart);
         }
 
         function shootLaser() {
@@ -324,7 +344,7 @@
         function startGame() {
             initAudio();
             score = 0;
-            lives = 3;
+            lives = 5; // 5 життів
             shipX = 0;
             isPaused = false;
             document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
@@ -332,8 +352,10 @@
 
             enemies.forEach(e => scene.remove(e));
             lasers.forEach(l => scene.remove(l));
+            bonuses.forEach(b => scene.remove(b));
             enemies.length = 0;
             lasers.length = 0;
+            bonuses.length = 0;
 
             document.getElementById('startMenu').classList.add('hidden');
             document.getElementById('gameOverMenu').classList.add('hidden');
@@ -385,7 +407,6 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Рух зірок працює завжди для краси фону
             const positions = starField.geometry.attributes.position.array;
             for(let i=2; i<positions.length; i+=3) {
                 positions[i] += 0.4;
@@ -401,6 +422,7 @@
                 shipGroup.position.x += (shipX - shipGroup.position.x) * 0.2;
                 shipGroup.rotation.z = (shipGroup.position.x - shipX) * 0.5;
 
+                // Рух лазерів
                 for (let i = lasers.length - 1; i >= 0; i--) {
                     let l = lasers[i];
                     l.position.z -= 0.8;
@@ -410,11 +432,33 @@
                     }
                 }
 
+                // Рух бонусів ❤️
+                for (let i = bonuses.length - 1; i >= 0; i--) {
+                    let b = bonuses[i];
+                    b.position.z += 0.25;
+                    b.rotation.y += 0.05;
+
+                    // Гравець підбирає бонус
+                    if (shipGroup.position.distanceTo(b.position) < 1.1) {
+                        lives++;
+                        document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
+                        playSound('heal');
+                        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                        scene.remove(b);
+                        bonuses.splice(i, 1);
+                    } else if (b.position.z > 5) {
+                        scene.remove(b);
+                        bonuses.splice(i, 1);
+                    }
+                }
+
+                // Рух ворогів
                 for (let i = enemies.length - 1; i >= 0; i--) {
                     let en = enemies[i];
                     en.position.z += 0.35;
                     en.rotation.x += 0.03;
 
+                    // Збивання ворога лазером
                     for (let j = lasers.length - 1; j >= 0; j--) {
                         let l = lasers[j];
                         if (en.position.distanceTo(l.position) < 0.9) {
@@ -422,6 +466,12 @@
                             document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
                             playSound('explosion');
                             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+                            // Шанс 20% на випадання бонуса ❤️ з ворога
+                            if (Math.random() < 0.2) {
+                                spawnHeart(en.position);
+                            }
+
                             scene.remove(en);
                             scene.remove(l);
                             enemies.splice(i, 1);
@@ -430,6 +480,7 @@
                         }
                     }
 
+                    // Зіткнення з кораблем
                     if (shipGroup.position.distanceTo(en.position) < 1.0) {
                         lives--;
                         document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
