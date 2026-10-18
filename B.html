@@ -23,12 +23,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 10px;
+            padding: 10px 0;
         }
 
         .hud {
             width: 100%;
-            padding: 10px 12px;
+            padding: 10px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -36,15 +36,15 @@
         }
         .hud-btns {
             display: flex;
-            gap: 6px;
+            gap: 8px;
         }
         .btn-hud {
             background: rgba(255, 0, 127, 0.2);
             border: 1px solid #ff007f;
             color: #ff007f;
             border-radius: 15px;
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 8px 12px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
@@ -55,36 +55,31 @@
         .badge {
             background: rgba(10, 10, 30, 0.7);
             border: 2px solid #00f0ff;
-            padding: 5px 10px;
-            border-radius: 18px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 14px;
             color: #00f0ff;
-            text-shadow: 0 0 8px rgba(0,240,255,0.6);
             backdrop-filter: blur(5px);
         }
 
         .game-container {
-            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex: 1;
         }
         canvas#snakeCanvas {
             background: rgba(5, 5, 20, 0.9);
             border: 2px solid #00f0ff;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-            max-width: 90vw;
-            max-height: 45vh;
         }
 
         .controls {
             width: 100%;
             max-width: 280px;
-            padding: 5px 10px 15px;
+            padding: 5px 10px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -94,28 +89,25 @@
         .ctrl-row {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 15px;
             width: 100%;
         }
         .ctrl-btn {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.1);
             border: 2px solid #00f0ff;
-            border-radius: 16px;
+            border-radius: 15px;
             color: #00f0ff;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold;
             height: 55px;
-            width: 75px;
+            width: 80px;
             display: flex;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-            touch-action: manipulation;
         }
         .ctrl-btn:active {
-            background: rgba(0, 240, 255, 0.4);
-            transform: scale(0.92);
+            background: rgba(0, 240, 255, 0.3);
         }
 
         .overlay {
@@ -124,8 +116,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(5, 5, 20, 0.93);
-            backdrop-filter: blur(12px);
+            background: rgba(5, 5, 20, 0.95);
             z-index: 20;
             display: flex;
             flex-direction: column;
@@ -144,31 +135,214 @@
             font-weight: bold;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 0 25px rgba(255,0,127,0.6);
             text-transform: uppercase;
-            margin-top: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div class="hud-btns">
+            <a href="index.html" class="btn-hud">🏠 Меню</a>
+            <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
+        </div>
+        <div class="badge" id="scoreBadge">Довжина: 3</div>
+        <div class="badge" id="coinsBadge" style="border-color: #ffd700; color: #ffd700;">🪙 0</div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="snakeCanvas" width="280" height="280"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="ctrl-row">
+            <div class="ctrl-btn" id="upBtn">▲</div>
+        </div>
+        <div class="ctrl-row">
+            <div class="ctrl-btn" id="leftBtn">◀</div>
+            <div class="ctrl-btn" id="downBtn">▼</div>
+            <div class="ctrl-btn" id="rightBtn">▶</div>
+        </div>
+    </div>
+
+    <!-- Стартове меню -->
+    <div class="overlay" id="startMenu">
+        <h1 style="color: #ff007f; font-size: 28px; margin-bottom: 10px; text-transform: uppercase;">Cyber Snake</h1>
+        <p style="color: #ffd700; font-weight: bold; font-size: 16px; margin-bottom: 20px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
+        <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
+        <a href="index.html" class="btn-hud" style="margin-top: 15px; padding: 10px 25px; font-size: 15px;">🏠 В Головне Меню</a>
+    </div>
+
+    <!-- Пауза -->
+    <div class="overlay hidden" id="pauseMenu">
+        <h1 style="color: #00f0ff; font-size: 30px; margin-bottom: 20px;">ПАУЗА</h1>
+        <button class="btn-main" id="resumeBtn">Продовжити</button>
+        <br><br>
+        <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px;">🏠 В Головне Меню</a>
+    </div>
+
+    <!-- Програш -->
+    <div class="overlay hidden" id="gameOverMenu">
+        <h1 style="color: #ff0055; font-size: 28px; margin-bottom: 10px;">ГРУ ЗАКІНЧЕНО</h1>
+        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px; font-size: 16px;">Довжина: 3</p>
+        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold; font-size: 16px;">Зароблено: +0 🪙</p>
+        <button class="btn-main" id="restartBtn">ЗНОВУ</button>
+        <br><br>
+        <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px;">🏠 В Головне Меню</a>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        let coins = parseInt(localStorage.getItem('space_coins') || '0');
+        function updateCoinsUI() {
+            document.getElementById('coinsTotal').innerText = coins.toLocaleString();
+            document.getElementById('coinsBadge').innerText = `🪙 ${coins}`;
+        }
+        updateCoinsUI();
+
+        const canvas = document.getElementById('snakeCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+
+        let snake = [];
+        let food = { x: 5, y: 5 };
+        let dx = 1;
+        let dy = 0;
+        let nextDx = 1;
+        let nextDy = 0;
+        let score = 3;
+        let sessionCoins = 0;
+        let isPlaying = false;
+        let isPaused = false;
+        let gameInterval = null;
+
+        function resetGame() {
+            snake = [
+                { x: 7, y: 7 },
+                { x: 6, y: 7 },
+                { x: 5, y: 7 }
+            ];
+            dx = 1;
+            dy = 0;
+            nextDx = 1;
+            nextDy = 0;
+            score = 3;
+            sessionCoins = 0;
+            spawnFood();
         }
 
-        .shop-box {
-            width: 100%;
-            max-width: 340px;
-            background: rgba(15, 15, 35, 0.8);
-            border: 1px solid #00f0ff;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 15px 0;
-            max-height: 55vh;
-            overflow-y: auto;
+        function spawnFood() {
+            food.x = Math.floor(Math.random() * tileCount);
+            food.y = Math.floor(Math.random() * tileCount);
+            snake.forEach(part => {
+                if (part.x === food.x && part.y === food.y) spawnFood();
+            });
         }
-        .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
+
+        function main() {
+            if (!isPlaying || isPaused) return;
+
+            dx = nextDx;
+            dy = nextDy;
+
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver();
+                return;
+            }
+
+            for (let i = 0; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                coins += 10;
+                sessionCoins += 10;
+                localStorage.setItem('space_coins', coins.toString());
+                updateCoinsUI();
+                document.getElementById('scoreBadge').innerText = `Довжина: ${score}`;
+                spawnFood();
+            } else {
+                snake.pop();
+            }
+
+            draw();
         }
-        .shop-item-info { text-align: left; }
-        .shop-item-title { font-weight: bold; font-size: 14px; color: #fff
+
+        function draw() {
+            ctx.fillStyle = '#050514';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Їжа
+            ctx.fillStyle = '#ff007f';
+            ctx.fillRect(food.x * gridSize + 1, food.y * gridSize + 1, gridSize - 2, gridSize - 2);
+
+            // Змійка
+            snake.forEach((part, index) => {
+                ctx.fillStyle = index === 0 ? '#00f0ff' : '#0088cc';
+                ctx.fillRect(part.x * gridSize + 1, part.y * gridSize + 1, gridSize - 2, gridSize - 2);
+            });
+        }
+
+        function startGame() {
+            resetGame();
+            isPaused = false;
+            isPlaying = true;
+
+            document.getElementById('scoreBadge').innerText = `Довжина: ${score}`;
+            document.getElementById('startMenu').classList.add('hidden');
+            document.getElementById('gameOverMenu').classList.add('hidden');
+            document.getElementById('pauseMenu').classList.add('hidden');
+
+            clearInterval(gameInterval);
+            gameInterval = setInterval(main, 220);
+        }
+
+        function togglePause() {
+            if (!isPlaying) return;
+            isPaused = !isPaused;
+            const pauseMenu = document.getElementById('pauseMenu');
+            if (isPaused) {
+                pauseMenu.classList.remove('hidden');
+                document.getElementById('pauseBtn').innerText = '▶';
+            } else {
+                pauseMenu.classList.add('hidden');
+                document.getElementById('pauseBtn').innerText = '⏸️';
+            }
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            document.getElementById('finalScoreText').innerText = `Довжина: ${score}`;
+            document.getElementById('earnedCoinsText').innerText = `Зароблено: +${sessionCoins} 🪙`;
+            document.getElementById('gameOverMenu').classList.remove('hidden');
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('resumeBtn').addEventListener('click', togglePause);
+
+        document.getElementById('upBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dy === 0) { nextDx = 0; nextDy = -1; } });
+        document.getElementById('downBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dy === 0) { nextDx = 0; nextDy = 1; } });
+        document.getElementById('leftBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dx === 0) { nextDx = -1; nextDy = 0; } });
+        document.getElementById('rightBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dx === 0) { nextDx = 1; nextDy = 0; } });
+
+        draw();
+    </script>
+</body>
+</html>
