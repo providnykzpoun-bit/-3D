@@ -222,7 +222,7 @@
 
     <!-- Програш -->
     <div class="overlay hidden" id="gameOverMenu">
-        <h1 style="color: #ff0055; font-size: 26px; margin-bottom: 8px;"> СІТКУ ЗБИТО</h1>
+        <h1 style="color: #ff0055; font-size: 26px; margin-bottom: 8px;">СІТКУ ЗБИТО</h1>
         <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 4px; font-size: 14px;">Рахунок: 0</p>
         <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 15px; font-weight: bold; font-size: 14px;">Зароблено: +0 🪙</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ</button>
@@ -335,7 +335,8 @@
         const canvas = document.getElementById('flappyCanvas');
         const ctx = canvas.getContext('2d');
 
-        let bird = { x: 50, y: 200, radius: 14, gravity: 0.35, lift: -6.5, velocity: 0 };
+        // Ультра-повільна гравітація та плавний стрибок
+        let bird = { x: 60, y: 200, radius: 14, gravity: 0.18, lift: -4.2, velocity: 0 };
         let pipes = [];
         let score = 0;
         let sessionCoins = 0;
@@ -359,9 +360,9 @@
         }
 
         function spawnPipe() {
-            let gap = 110;
-            let minHeight = 50;
-            let maxHeight = canvas.height - gap - 50;
+            let gap = 130; // Ширший прохід
+            let minHeight = 60;
+            let maxHeight = canvas.height - gap - 60;
             let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
 
             pipes.push({
@@ -377,16 +378,16 @@
             if (!isPlaying || isPaused) return;
 
             frameCount++;
-            if (frameCount % 110 === 0) {
+            if (frameCount % 160 === 0) { // Труби з'являються повільніше
                 spawnPipe();
             }
 
-            // Фізика пташки
+            // Плавна фізика пташки
             bird.velocity += bird.gravity;
             bird.y += bird.velocity;
 
             // Межі екрана
-            if (bird.y + bird.radius >= canvas.height - 20) {
+            if (bird.y + bird.radius >= canvas.height - 15) {
                 gameOver();
                 return;
             }
@@ -395,9 +396,9 @@
                 bird.velocity = 0;
             }
 
-            // Труби
+            // Труби (повільна швидкість руху)
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 2.2;
+                pipes[i].x -= 1.4;
 
                 // Зіткнення
                 if (
@@ -547,13 +548,11 @@
             document.getElementById('shopMenu').classList.add('hidden');
         });
 
-        // Керування дотиком по канвасу
         canvas.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             flap();
         });
 
-        // Первинне малювання на фоні
         draw();
     </script>
 </body>
