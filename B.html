@@ -80,7 +80,7 @@
         .controls {
             width: 100%;
             max-width: 320px;
-            padding: 10px 15px 20px;
+            padding: 10px 15px 25px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -188,12 +188,13 @@
             <a href="index.html" class="btn-hud">🏠 Меню</a>
             <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
         </div>
-        <div class="badge" id="scoreBadge">Довжина: 1</div>
+        <div class="badge" id="scoreBadge">Довжина: 3</div>
         <div class="badge" id="coinsBadge" style="border-color: #ffd700; color: #ffd700;">🪙 0</div>
     </div>
 
     <div class="game-container">
-        <canvas id="snakeCanvas" width="300" height="300"></canvas>
+        <!-- Збільшено розмір ігрового поля до 340x340 -->
+        <canvas id="snakeCanvas" width="340" height="340"></canvas>
     </div>
 
     <div class="controls">
@@ -264,7 +265,7 @@
     <!-- Програш -->
     <div class="overlay hidden" id="gameOverMenu">
         <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055; font-size: 28px; margin-bottom: 10px;">СІТКУ ПОРВАНО</h1>
-        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px;">Довжина: 0</p>
+        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px;">Довжина: 3</p>
         <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Зароблено: +0 🪙</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ</button>
         <br>
@@ -370,7 +371,7 @@
         // ЛОГІКА ЗМІЙКИ
         const canvas = document.getElementById('snakeCanvas');
         const ctx = canvas.getContext('2d');
-        const gridSize = 15;
+        const gridSize = 20; // Збільшено розмір клітинки
         const tileCount = canvas.width / gridSize;
 
         let snake = [];
@@ -379,7 +380,7 @@
         let dy = 0;
         let nextDx = 1;
         let nextDy = 0;
-        let score = 0;
+        let score = 3;
         let sessionCoins = 0;
         let isPlaying = false;
         let isPaused = false;
@@ -393,9 +394,9 @@
 
         function resetGame() {
             snake = [
-                { x: 10, y: 10 },
-                { x: 9, y: 10 },
-                { x: 8, y: 10 }
+                { x: 8, y: 8 },
+                { x: 7, y: 8 },
+                { x: 6, y: 8 }
             ];
             dx = 1;
             dy = 0;
@@ -464,14 +465,14 @@
             ctx.fillStyle = '#ff007f';
             ctx.shadowBlur = 10;
             ctx.shadowColor = '#ff007f';
-            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+            ctx.fillRect(food.x * gridSize + 1, food.y * gridSize + 1, gridSize - 2, gridSize - 2);
             ctx.shadowBlur = 0;
 
             // Змійка
             const colors = SKINS[currentSkin] || SKINS.cyan;
             snake.forEach((part, index) => {
                 ctx.fillStyle = index === 0 ? colors.head : colors.body;
-                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 2, gridSize - 2);
+                ctx.fillRect(part.x * gridSize + 1, part.y * gridSize + 1, gridSize - 2, gridSize - 2);
             });
         }
 
@@ -488,7 +489,8 @@
             document.getElementById('shopMenu').classList.add('hidden');
 
             clearInterval(gameInterval);
-            gameInterval = setInterval(main, 120);
+            // Зменшено швидкість (150 мс замість 120 мс) для комфортної гри
+            gameInterval = setInterval(main, 150);
         }
 
         function togglePause() {
