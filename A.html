@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Neon Tetris</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #020208;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hud {
+            width: 100%;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .hud-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-hud {
+            background: rgba(255, 0, 127, 0.2);
+            border: 1px solid #ff007f;
+            color: #ff007f;
+            border-radius: 15px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .badge {
+            background: rgba(10, 10, 30, 0.7);
+            border: 2px solid #00f0ff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0,240,255,0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .game-container {
+            position: relative;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-top: 5px;
+        }
+        canvas#tetris {
+            background: rgba(5, 5, 20, 0.9);
+            border: 2px solid #00f0ff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .preview-box {
+            background: rgba(5, 5, 20, 0.9);
+            border: 2px solid #ff007f;
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
+        }
+        .preview-title {
+            font-size: 11px;
+            color: #ff007f;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        canvas#next {
+            background: transparent;
+        }
+
+        .controls {
+            width: 100%;
+            max-width: 360px;
+            padding: 10px 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+        }
+        .ctrl-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid #00f0ff;
+            border-radius: 15px;
+            color: #00f0ff;
+            font-size: 22px;
+            font-weight: bold;
+            height: 55px;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+        .ctrl-btn:active {
+            background: rgba(0, 240, 255, 0.3);
+            transform: scale(0.95);
+        }
+        .ctrl-btn.accent {
+            border-color: #ff007f;
+            color: #ff007f;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+        }
+        .ctrl-btn.accent:active {
+            background: rgba(255, 0, 127, 0.3);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 20, 0.93);
+            backdrop-filter: blur(12px);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .hidden { display: none !important; }
+        .btn-main {
+            background: linear-gradient(45deg, #ff007f, #00f0ff);
+            border: 3px solid #fff;
+            color: #fff;
+            padding: 14px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(255,0,127,0.6);
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .shop-box {
+            width: 100%;
+            max-width: 340px;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid #00f0ff;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .shop-item-info { text-align: left; }
+        .shop-item-title { font-weight: bold; font-size: 14px; color: #fff; }
+        .shop-item-cost { font-size: 12px; color: #ffd700; }
+        .btn-buy {
+            background: #00f0ff;
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-buy.equipped { background: #ff007f; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div class="hud-btns">
+            <a href="index.html" class="btn-hud">🏠 Меню</a>
+            <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
+        </div>
+        <div class="badge" id="scoreBadge">Очки: 0</div>
+        <div class="badge" id="linesBadge" style="border-color: #ff007f; color: #ff007f;">Лінії: 0</div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="tetris" width="240" height="400"></canvas>
+        <div class="side-panel">
+            <div class="preview-box">
+                <div class="preview-title">НАСТУПНА</div>
+                <canvas id="next" width="80" height="80"></canvas>
+            </div>
+            <div class="badge" id="levelBadge" style="font-size: 12px; border-color: #00ffaa; color: #00ffaa;">Рівень: 1</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="ctrl-row">
+            <div class="ctrl-btn accent" id="rotateBtn">🔄</div>
+        </div>
+        <div class="ctrl-row">
+            <div class="ctrl-btn" id="leftBtn">◀</div>
+            <div class="ctrl-btn" id="downBtn">▼</div>
+            <div class="ctrl-btn" id="rightBtn">▶</div>
+        </div>
+        <div class="ctrl-row">
+            <div class="ctrl-btn accent" id="dropBtn" style="font-size: 16px;">⏬ СКИДАННЯ</div>
+        </div>
+    </div>
+
+    <!-- Стартове меню -->
+    <div class="overlay" id="startMenu">
+        <h1 style="color: #ff007f; font-size: 28px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 15px #ff007f;">Neon Tetris</h1>
+        <p style="color: #ffd700; font-weight: bold; font-size: 15px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
+        
+        <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
+        <button class="btn-hud" id="openShopBtn" style="margin-top: 12px; padding: 10px 20px; font-size: 14px; border-color: #00f0ff; color: #00f0ff; width: 100%;">🛒 Магазин тем</button>
+        <button class="btn-hud" id="withdrawBtn" style="margin-top: 8px; padding: 10px 20px; font-size: 14px; border-color: #00ffaa; color: #00ffaa; width: 100%;">📤 Вивести UA Token</button>
+    </div>
+
+    <!-- Магазин -->
+    <div class="overlay hidden" id="shopMenu">
+        <h2 style="color: #00f0ff; font-size: 24px; margin-bottom: 5px;">🛒 Магазин тем</h2>
+        <p style="color: #ffd700; font-size: 14px;">Ваші монети: <span id="shopCoinsTotal">0</span> 🪙</p>
+
+        <div class="shop-box">
+            <div style="color: #ff007f; font-size: 12px; text-align: left; margin-bottom: 5px; font-weight: bold;">ПАЛІТРА ФІГУР</div>
+            
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Класичний Киберпанк</div>
+                    <div class="shop-item-cost">Безкоштовно</div>
+                </div>
+                <button class="btn-buy" id="themeDefaultBtn">Обрати</button>
+            </div>
+
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Неоновий Захід (Sunset)</div>
+                    <div class="shop-item-cost">1000 🪙</div>
+                </div>
+                <button class="btn-buy" id="themeSunsetBtn">Купити</button>
+            </div>
+
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Зелена Матриця (Matrix)</div>
+                    <div class="shop-item-cost">2500 🪙</div>
+                </div>
+                <button class="btn-buy" id="themeMatrixBtn">Купити</button>
+            </div>
+        </div>
+
+        <button class="btn-main" id="closeShopBtn" style="padding: 10px 30px; font-size: 15px;">Назад</button>
+    </div>
+
+    <!-- Пауза -->
+    <div class="overlay hidden" id="pauseMenu">
+        <h1 style="color: #00f0ff; font-size: 32px; margin-bottom: 20px; text-transform: uppercase;">Пауза</h1>
+        <button class="btn-main" id="resumeBtn" style="margin-bottom: 15px;">Продовжити</button>
+        <br>
+        <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px;">🏠 В Головне Меню</a>
+    </div>
+
+    <!-- Програш -->
+    <div class="overlay hidden" id="gameOverMenu">
+        <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055; font-size: 28px; margin-bottom: 10px;">ГРУ ЗАКІНЧЕНО</h1>
+        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px;">Очки: 0</p>
+        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Отримано монет: +0 🪙</p>
+        <button class="btn-main" id="restartBtn">ЗНОВУ</button>
+        <br>
+        <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px; margin-top: 10px; display: inline-block;">В Головне Меню</a>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+    </script>
+
+    <script>
+        let coins = parseInt(localStorage.getItem('space_coins') || '0');
+        let currentTheme = localStorage.getItem('tetris_theme') || 'default';
+        let ownedThemes = JSON.parse(localStorage.getItem('tetris_owned_themes') || '["default"]');
+
+        function saveGameData() {
+            localStorage.setItem('space_coins', coins.toString());
+            localStorage.setItem('tetris_theme', currentTheme);
+            localStorage.setItem('tetris_owned_themes', JSON.stringify(ownedThemes));
+        }
+
+        function updateCoinsUI() {
+            document.getElementById('coinsTotal').innerText = coins.toLocaleString();
+            document.getElementById('shopCoinsTotal').innerText = coins.toLocaleString();
+        }
+        updateCoinsUI();
+
+        // --- ВИВІД UA TOKEN ---
+        document.getElementById('withdrawBtn').addEventListener('click', () => {
+            const MIN_COINS = 50000;
+            const COINS_PER_UA = 1000;
+
+            if (coins < MIN_COINS) {
+                alert(`Мінімальна сума для виводу: 50 UA (${MIN_COINS.toLocaleString()} монет)!\nУ вас зараз: ${coins.toLocaleString()} монет.`);
+                return;
+            }
+
+            let username = 'Гравець';
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                let user = tg.initDataUnsafe.user;
+                username = user.username ? `@${user.username}` : `${user.first_name || ''} (ID: ${user.id})`;
+            }
+
+            let uaAmount = (coins / COINS_PER_UA).toFixed(1);
+            let reportText = `📤 ЗАЯВКА НА ВИВІД UA\n🎮 Гра: Neon Tetris\n👤 Нік: ${username}\n💰 Сума: ${uaAmount} UA (${coins} монет)`;
+
+            navigator.clipboard.writeText(reportText).then(() => {
+                alert('Чек виводу сформовано та скопійовано у буфер!\nЗараз ви перейдете в бот: надішліть йому цей текст.');
+            }).catch(() => {
+                alert(`Ваш чек:\n\n${reportText}\n\nНадішліть його у бот.`);
+            });
+
+            coins = 0;
+            saveGameData();
+            updateCoinsUI();
+
+            if (tg.openTelegramLink) {
+                tg.openTelegramLink('http://t.me/tokenpist_bot');
+            } else {
+                window.open('http://t.me/tokenpist_bot', '_blank');
+            }
+        });
+
+        // --- АУДІО ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            try {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                let now = audioCtx.currentTime;
+
+                if (type === 'move') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'rotate') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'clear') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'drop') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.linearRampToValueAtTime(60, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                }
+            } catch(e) {}
+        }
+
+        // --- ЛОГІКА ТЕТРІСА ---
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        context.scale(20, 20);
+
+        const canvasNext = document.getElementById('next');
+        const contextNext = canvasNext.getContext('2d');
+        contextNext.scale(20, 20);
+
+        const PALETTES = {
+            default: [null, '#ff007f', '#00f0ff', '#00ffaa', '#ffd700', '#ff0055', '#a000ff', '#ffffff'],
+            sunset:  [null, '#ff4e50', '#f9d423', '#e1f5c4', '#ede580', '#e15b64', '#f8b195', '#f67280'],
+            matrix:  [null, '#00ff66', '#00cc44', '#009933', '#33ff88', '#66ffaa', '#00ff00', '#ccffdd']
+        };
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) matrix.push(new Array(w).fill(0));
+            return matrix;
+        }
+
+        function createPiece(type) {
+            if (type === 'I') return [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];
+            if (type === 'L') return [[0,2,0],[0,2,0],[0,2,2]];
+            if (type === 'J') return [[0,3,0],[0,3,0],[3,3,0]];
+            if (type === 'O') return [[4,4],[4,4]];
+            if (type === 'Z') return [[5,5,0],[0,5,5],[0,0,0]];
+            if (type === 'S') return [[0,6,6],[6,6,0],[0,0,0]];
+            if (type === 'T') return [[0,7,0],[7,7,7],[0,0,0]];
+        }
+
+        const arena = createMatrix(12, 20);
+        let player = { pos: {x: 0, y: 0}, matrix: null, score: 0, lines: 0, level: 1 };
+        let nextPiece = null;
+
+        let isPlaying = false;
+        let isPaused = false;
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        let sessionCoins = 0;
+
+        function collide(arena, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function merge(arena, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) arena[y + player.pos.y][x + player.pos.x] = value;
+                });
+            });
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) matrix.forEach(row => row.reverse());
+            else matrix.reverse();
+        }
+
+        function arenaSweep() {
+            let rowCount = 1;
+            let cleared = 0;
+            outer: for (let y = arena.length - 1; y >= 0; --y) {
+                for (let x = 0; x < arena[y].length; ++x) {
+                    if (arena[y][x] === 0) continue outer;
+                }
+                const row = arena.splice(y, 1)[0].fill(0);
+                arena.unshift(row);
+                ++y;
+
+                player.score += rowCount * 10;
+                rowCount *= 2;
+                cleared++;
+            }
+
+            if (cleared > 0) {
+                player.lines += cleared;
+                player.level = Math.floor(player.lines / 10) + 1;
+                dropInterval = Math.max(100, 1000 - (player.level - 1) * 80);
+
+                let earned = cleared * 5;
+                coins += earned;
+                sessionCoins += earned;
+                saveGameData();
+                updateCoinsUI();
+
+                playSound('clear');
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                document.getElementById('scoreBadge').innerText = `Очки: ${player.score}`;
+                document.getElementById('linesBadge').innerText = `Лінії: ${player.lines}`;
+                document.getElementById('levelBadge').innerText = `Рівень: ${player.level}`;
+            }
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(arena, player)) {
+                player.pos.y--;
+                merge(arena, player);
+                playerReset();
+                arenaSweep();
+            }
+            dropCounter = 0;
+        }
+
+        function playerHardDrop() {
+            while (!collide(arena, player)) {
+                player.pos.y++;
+            }
+            player.pos.y--;
+            merge(arena, player);
+            playSound('drop');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            playerReset();
+            arenaSweep();
+            dropCounter = 0;
+        }
+
+        function playerMove(dir) {
+            player.pos.x += dir;
+            if (collide(arena, player)) player.pos.x -= dir;
+            else playSound('move');
+        }
+
+        function playerRotate(dir) {
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, dir);
+            while (collide(arena, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+            playSound('rotate');
+        }
+
+        function playerReset() {
+            const pieces = 'TJLOSZI';
+            if (!nextPiece) nextPiece = createPiece(pieces[pieces.length * Math.random() | 0]);
+
+            player.matrix = nextPiece;
+            nextPiece = createPiece(pieces[pieces.length * Math.random() | 0]);
+            player.pos.y = 0;
+            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+
+            if (collide(arena, player)) {
+                gameOver();
+            }
+            drawNext();
+        }
+
+        function drawMatrix(matrix, offset, ctx) {
+            const palette = PALETTES[currentTheme] || PALETTES.default;
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        ctx.fillStyle = palette[value];
+                        ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
+                        ctx.strokeStyle = '#020208';
+                        ctx.lineWidth = 0.05;
+                        ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        function drawNext() {
+            contextNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
+            if (nextPiece) {
+                drawMatrix(nextPiece, {x: 1, y: 1}, contextNext);
+            }
+        }
+
+        function draw() {
+            context.fillStyle = '#050514';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawMatrix(arena, {x: 0, y: 0}, context);
+            drawMatrix(player.matrix, player.pos, context);
+        }
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            if (isPlaying && !isPaused) {
+                dropCounter += deltaTime;
+                if (dropCounter > dropInterval) playerDrop();
+                draw();
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function startGame() {
+            initAudio();
+            arena.forEach(row => row.fill(0));
+            player.score = 0;
+            player.lines = 0;
+            player.level = 1;
+            sessionCoins = 0;
+            dropInterval = 1000;
+            nextPiece = null;
+            isPlaying = true;
+            isPaused = false;
+
+            document.getElementById('scoreBadge').innerText = `Очки: 0`;
+            document.getElementById('linesBadge').innerText = `Лінії: 0`;
+            document.getElementById('levelBadge').innerText = `Рівень: 1`;
+
+            document.getElementById('startMenu').classList.add('hidden');
+            document.getElementById('gameOverMenu').classList.add('hidden');
+            document.getElementById('pauseMenu').classList.add('hidden');
+            document.getElementById('shopMenu').classList.add('hidden');
+
+            playerReset();
+        }
+
+        function togglePause() {
+            if (!isPlaying) return;
+            isPaused = !isPaused;
+            const pauseMenu = document.getElementById('pauseMenu');
+            if (isPaused) {
+                pauseMenu.classList.remove('hidden');
+                document.getElementById('pauseBtn').innerText = '▶ Продовжити';
+            } else {
+                pauseMenu.classList.add('hidden');
+                document.getElementById('pauseBtn').innerText = '⏸️ Пауза';
+            }
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            document.getElementById('finalScoreText').innerText = `Очки: ${player.score}`;
+            document.getElementById('earnedCoinsText').innerText = `Отримано монет: +${sessionCoins} 🪙`;
+            document.getElementById('gameOverMenu').classList.remove('hidden');
+        }
+
+        // --- МАГАЗИН ТЕМ ---
+        function refreshShopUI() {
+            updateCoinsUI();
+
+            const setupTheme = (btnId, key, cost) => {
+                const btn = document.getElementById(btnId);
+                if (currentTheme === key) {
+                    btn.innerText = 'Обрано';
+                    btn.className = 'btn-buy equipped';
+                } else if (ownedThemes.includes(key)) {
+                    btn.innerText = 'Обрати';
+                    btn.className = 'btn-buy';
+                    btn.onclick = () => { currentTheme = key; saveGameData(); refreshShopUI(); };
+                } else {
+                    btn.innerText = 'Купити';
+                    btn.className = 'btn-buy';
+                    btn.onclick = () => {
+                        if (coins >= cost) {
+                            coins -= cost;
+                            ownedThemes.push(key);
+                            currentTheme = key;
+                            saveGameData();
+                            refreshShopUI();
+                        } else alert('Недостатньо монет!');
+                    };
+                }
+            };
+
+            setupTheme('themeDefaultBtn', 'default', 0);
+            setupTheme('themeSunsetBtn', 'sunset', 1000);
+            setupTheme('themeMatrixBtn', 'matrix', 2500);
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('resumeBtn').addEventListener('click', togglePause);
+
+        document.getElementById('openShopBtn').addEventListener('click', () => {
+            refreshShopUI();
+            document.getElementById('shopMenu').classList.remove('hidden');
+        });
+        document.getElementById('closeShopBtn').addEventListener('click', () => {
+            refreshShopUI();
+            document.getElementById('shopMenu').classList.add('hidden');
+        });
+
+        // Керування кнопками
+        document.getElementById('leftBtn').addEventListener('click', () => isPlaying && !isPaused && playerMove(-1));
+        document.getElementById('rightBtn').addEventListener('click', () => isPlaying && !isPaused && playerMove(1));
+        document.getElementById('downBtn').addEventListener('click', () => isPlaying && !isPaused && playerDrop());
+        document.getElementById('rotateBtn').addEventListener('click', () => isPlaying && !isPaused && playerRotate(1));
+        document.getElementById('dropBtn').addEventListener('click', () => isPlaying && !isPaused && playerHardDrop());
+
+        update();
+    </script>
+</body>
+</html>
