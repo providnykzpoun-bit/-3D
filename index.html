@@ -40,6 +40,7 @@
             font-size: 13px;
             margin-top: 5px;
         }
+        /* Сітка 2х2 для картках ігор */
         .hub-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -104,29 +105,30 @@
         <p>Оберіть гру та побийте свій рекорд!</p>
     </header>
 
+    <!-- Меню ігор 2х2 -->
     <div class="hub-grid">
-        <!-- 1. Космічна стрілялка (E.html) -->
+        <!-- 1. Космічна стрілялка (перехід на E.html) -->
         <a href="E.html" class="game-card">
             <div class="game-icon">🚀</div>
             <div class="game-title">Space Striker</div>
             <div class="game-desc">3D Екшн</div>
         </a>
 
-        <!-- 2. Тетріс (A.html) -->
+        <!-- 2. Тетріс (перехід на A.html) -->
         <a href="A.html" class="game-card">
             <div class="game-icon">🧱</div>
             <div class="game-title">Neon Tetris</div>
             <div class="game-desc">Аркада</div>
         </a>
 
-        <!-- 3. Змійка (B.html) -->
+        <!-- 3. Змійка (перехід на B.html) -->
         <a href="B.html" class="game-card">
             <div class="game-icon">🐍</div>
             <div class="game-title">Cyber Snake</div>
             <div class="game-desc">Класика</div>
         </a>
 
-        <!-- 4. Пташка (C.html) -->
+        <!-- 4. Пташка (перехід на C.html) -->
         <a href="C.html" class="game-card">
             <div class="game-icon">🐦</div>
             <div class="game-title">Neon Flappy</div>
@@ -138,6 +140,7 @@
         Telegram Web App Games v1.0
     </footer>
 
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         const tg = window.Telegram.WebApp;
