@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Space Striker 3D</title>
+    <title>Space Striker</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,8 +19,12 @@
             overflow: hidden;
             height: 100vh;
             width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
-        #canvas-container {
+        canvas {
             position: absolute;
             top: 0;
             left: 0;
@@ -33,18 +37,12 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
             padding: 15px;
-        }
-        .top-stats {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 10;
+            pointer-events: none;
         }
         .badge {
             background: rgba(10, 10, 30, 0.7);
@@ -109,7 +107,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(5, 5, 20, 0.92);
+            background: rgba(5, 5, 20, 0.93);
             backdrop-filter: blur(12px);
             z-index: 20;
             display: flex;
@@ -173,17 +171,15 @@
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <canvas id="gameCanvas"></canvas>
 
     <div class="hud">
-        <div class="top-stats">
-            <div class="hud-btns">
-                <a href="index.html" class="btn-hud">🏠 Меню</a>
-                <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
-            </div>
-            <div class="badge" id="scoreBadge">Очки: 0</div>
-            <div class="badge" id="livesBadge" style="border-color: #ff007f; color: #ff007f;">❤️ 5</div>
+        <div class="hud-btns">
+            <a href="index.html" class="btn-hud">🏠 Меню</a>
+            <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
         </div>
+        <div class="badge" id="scoreBadge">Очки: 0</div>
+        <div class="badge" id="livesBadge" style="border-color: #ff007f; color: #ff007f;">❤️ 5</div>
     </div>
 
     <div class="controls-panel">
@@ -191,9 +187,9 @@
         <div class="ctrl-btn" id="rightBtn">▶</div>
     </div>
 
-    <!-- Меню старту -->
+    <!-- Стартове меню -->
     <div class="overlay" id="startMenu">
-        <h1 style="color: #ff007f; font-size: 26px; margin-bottom: 5px; text-transform: uppercase;">Space Striker 3D</h1>
+        <h1 style="color: #ff007f; font-size: 26px; margin-bottom: 5px; text-transform: uppercase;">Space Striker</h1>
         <p style="color: #ffd700; font-weight: bold; font-size: 15px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
         
         <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
@@ -201,7 +197,7 @@
         <button class="btn-hud" id="withdrawBtn" style="margin-top: 8px; padding: 10px 20px; font-size: 14px; border-color: #00ffaa; color: #00ffaa; width: 100%;">📤 Вивести UA Token</button>
     </div>
 
-    <!-- Меню Магазина -->
+    <!-- Магазин -->
     <div class="overlay hidden" id="shopMenu">
         <h2 style="color: #00f0ff; font-size: 24px; margin-bottom: 5px;">🛒 Магазин покращень</h2>
         <p style="color: #ffd700; font-size: 14px;">Ваші монети: <span id="shopCoinsTotal">0</span> 🪙</p>
@@ -263,19 +259,19 @@
         <button class="btn-main" id="closeShopBtn" style="padding: 10px 30px; font-size: 15px;">Назад</button>
     </div>
 
-    <!-- Меню паузи -->
+    <!-- Пауза -->
     <div class="overlay hidden" id="pauseMenu">
-        <h1 style="color: #00f0ff; font-size: 32px; margin-bottom: 20px; text-transform: uppercase;">Гра на паузі</h1>
+        <h1 style="color: #00f0ff; font-size: 32px; margin-bottom: 20px; text-transform: uppercase;">Пауза</h1>
         <button class="btn-main" id="resumeBtn" style="margin-bottom: 15px;">Продовжити</button>
         <br>
         <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px;">🏠 В Головне Меню</a>
     </div>
 
-    <!-- Меню програшу -->
+    <!-- Програш -->
     <div class="overlay hidden" id="gameOverMenu">
-        <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055; font-size: 30px; margin-bottom: 10px;">КОРАБЕЛЬ ЗБИТО</h1>
+        <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055; font-size: 28px; margin-bottom: 10px;">КОРАБЕЛЬ ЗБИТО</h1>
         <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px;">Ваш результат: 0 очок</p>
-        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Зароблено в цьому бою: +0 🪙</p>
+        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Зароблено: +0 🪙</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ В БІЙ</button>
         <br>
         <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px; margin-top: 10px; display: inline-block;">В Головне Меню</a>
@@ -288,17 +284,7 @@
         tg.expand();
     </script>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import * as THREE from 'three';
-
+    <script>
         let coins = parseInt(localStorage.getItem('space_coins') || '0');
         let currentSkin = localStorage.getItem('space_skin') || 'cyan';
         let ownedSkins = JSON.parse(localStorage.getItem('space_owned_skins') || '["cyan"]');
@@ -309,10 +295,17 @@
         let lives = 5;
         let isPlaying = false;
         let isPaused = false;
+        let sessionCoins = 0;
 
-        let shipX = 0;
-        let moveLeftFlag = false;
-        let moveRightFlag = false;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         function saveGameData() {
             localStorage.setItem('space_coins', coins.toString());
@@ -326,10 +319,9 @@
             document.getElementById('coinsTotal').innerText = coins;
             document.getElementById('shopCoinsTotal').innerText = coins;
         }
-
         updateCoinsUI();
 
-        // --- ЛОГІКА ВИВОДУ UA TOKEN (Мін. 50 UA = 50 000 монет) ---
+        // ВИВІД UA TOKEN
         document.getElementById('withdrawBtn').addEventListener('click', () => {
             const MIN_COINS = 50000;
             const COINS_PER_UA = 1000;
@@ -346,7 +338,7 @@
             }
 
             let uaAmount = (coins / COINS_PER_UA).toFixed(1);
-            let reportText = `📤 ЗАЯВКА НА ВИВІД UA\n🎮 Гра: Space Striker 3D\n👤 Нік: ${username}\n💰 Сума: ${uaAmount} UA (${coins} монет)`;
+            let reportText = `📤 ЗАЯВКА НА ВИВІД UA\n🎮 Гра: Space Striker\n👤 Нік: ${username}\n💰 Сума: ${uaAmount} UA (${coins} монет)`;
 
             navigator.clipboard.writeText(reportText).then(() => {
                 alert('Чек виводу сформовано та скопійовано у буфер!\nЗараз ви перейдете в бот: надішліть йому цей текст.');
@@ -365,7 +357,7 @@
             }
         });
 
-        // --- АУДІО ---
+        // АУДІО
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -384,23 +376,305 @@
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(600, now);
                     osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
-                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.setValueAtTime(0.1, now);
                     gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
                     osc.start(now);
                     osc.stop(now + 0.1);
                 } else if (type === 'explosion') {
                     osc.type = 'square';
                     osc.frequency.setValueAtTime(150, now);
-                    osc.frequency.linearRampToValueAtTime(30, now + 0.25);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.frequency.linearRampToValueAtTime(30, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
                     osc.start(now);
-                    osc.stop(now + 0.25);
+                    osc.stop(now + 0.2);
                 } else if (type === 'hit') {
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.linearRampToValueAtTime(80, now + 0.3);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.frequency.linearRampToValueAtTime(80, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
                     osc.start(now);
-                    osc.stop(now
+                    osc.stop(now + 0.2);
+                }
+            } catch(e) {}
+        }
+
+        // ІГРОВІ ОБ'ЄКТИ
+        let ship = { x: 0, y: 0, width: 50, height: 50, speed: 7 };
+        let stars = [];
+        let bullets = [];
+        let enemies = [];
+        let hearts = [];
+        let moveLeft = false;
+        let moveRight = false;
+
+        for (let i = 0; i < 100; i++) {
+            stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 2, speed: Math.random() * 2 + 1 });
+        }
+
+        function startGame() {
+            initAudio();
+            score = 0;
+            sessionCoins = 0;
+            lives = 5 + (hasExtraLife ? 1 : 0);
+            ship.x = window.innerWidth / 2 - 25;
+            ship.y = window.innerHeight - 120;
+            bullets = [];
+            enemies = [];
+            hearts = [];
+            isPaused = false;
+
+            document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
+            document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
+
+            document.getElementById('startMenu').classList.add('hidden');
+            document.getElementById('gameOverMenu').classList.add('hidden');
+            document.getElementById('pauseMenu').classList.add('hidden');
+            document.getElementById('shopMenu').classList.add('hidden');
+            isPlaying = true;
+        }
+
+        function togglePause() {
+            if (!isPlaying) return;
+            isPaused = !isPaused;
+            const pauseMenu = document.getElementById('pauseMenu');
+            if (isPaused) {
+                pauseMenu.classList.remove('hidden');
+                document.getElementById('pauseBtn').innerText = '▶ Продовжити';
+            } else {
+                pauseMenu.classList.add('hidden');
+                document.getElementById('pauseBtn').innerText = '⏸️ Пауза';
+            }
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            document.getElementById('finalScoreText').innerText = `Ваш результат: ${score} очок`;
+            document.getElementById('earnedCoinsText').innerText = `Зароблено: +${sessionCoins} 🪙`;
+            document.getElementById('gameOverMenu').classList.remove('hidden');
+        }
+
+        // МАГАЗИН
+        function refreshShopUI() {
+            updateCoinsUI();
+            const setupItem = (btnId, key, isSkin, cost) => {
+                const btn = document.getElementById(btnId);
+                if (isSkin) {
+                    if (currentSkin === key) {
+                        btn.innerText = 'Обрано';
+                        btn.className = 'btn-buy equipped';
+                    } else if (ownedSkins.includes(key)) {
+                        btn.innerText = 'Одягти';
+                        btn.className = 'btn-buy';
+                        btn.onclick = () => { currentSkin = key; saveGameData(); refreshShopUI(); };
+                    } else {
+                        btn.innerText = 'Купити';
+                        btn.className = 'btn-buy';
+                        btn.onclick = () => {
+                            if (coins >= cost) {
+                                coins -= cost;
+                                ownedSkins.push(key);
+                                currentSkin = key;
+                                saveGameData();
+                                refreshShopUI();
+                            } else alert('Недостатньо монет!');
+                        };
+                    }
+                }
+            };
+            setupItem('skinCyanBtn', 'cyan', true, 0);
+            setupItem('skinGreenBtn', 'green', true, 500);
+            setupItem('skinRedBtn', 'red', true, 1000);
+            setupItem('skinGoldBtn', 'gold', true, 2500);
+
+            const dblBtn = document.getElementById('upgDoubleLaserBtn');
+            if (hasDoubleLaser) {
+                dblBtn.innerText = 'Куплено';
+                dblBtn.className = 'btn-buy equipped';
+            } else {
+                dblBtn.onclick = () => {
+                    if (coins >= 1500) {
+                        coins -= 1500;
+                        hasDoubleLaser = true;
+                        saveGameData();
+                        refreshShopUI();
+                    } else alert('Недостатньо монет!');
+                };
+            }
+
+            const lifeBtn = document.getElementById('upgExtraLifeBtn');
+            if (hasExtraLife) {
+                lifeBtn.innerText = 'Куплено';
+                lifeBtn.className = 'btn-buy equipped';
+            } else {
+                lifeBtn.onclick = () => {
+                    if (coins >= 800) {
+                        coins -= 800;
+                        hasExtraLife = true;
+                        saveGameData();
+                        refreshShopUI();
+                    } else alert('Недостатньо монет!');
+                };
+            }
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('resumeBtn').addEventListener('click', togglePause);
+
+        document.getElementById('openShopBtn').addEventListener('click', () => {
+            refreshShopUI();
+            document.getElementById('shopMenu').classList.remove('hidden');
+        });
+        document.getElementById('closeShopBtn').addEventListener('click', () => {
+            refreshShopUI();
+            document.getElementById('shopMenu').classList.add('hidden');
+        });
+
+        function bindBtn(id, onDown, onUp) {
+            const el = document.getElementById(id);
+            el.addEventListener('pointerdown', (e) => { e.preventDefault(); onDown(); });
+            el.addEventListener('pointerup', (e) => { e.preventDefault(); onUp(); });
+            el.addEventListener('pointerleave', (e) => { e.preventDefault(); onUp(); });
+        }
+        bindBtn('leftBtn', () => moveLeft = true, () => moveLeft = false);
+        bindBtn('rightBtn', () => moveRight = true, () => moveRight = false);
+
+        let shootTimer = 0;
+        let enemyTimer = 0;
+
+        function update() {
+            ctx.fillStyle = '#020208';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // зорі
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(s => {
+                s.y += s.speed;
+                if (s.y > canvas.height) s.y = 0;
+                ctx.fillRect(s.x, s.y, s.size, s.size);
+            });
+
+            if (isPlaying && !isPaused) {
+                if (moveLeft && ship.x > 10) ship.x -= ship.speed;
+                if (moveRight && ship.x < canvas.width - ship.width - 10) ship.x += ship.speed;
+
+                shootTimer++;
+                if (shootTimer > 25) {
+                    shootTimer = 0;
+                    if (hasDoubleLaser) {
+                        bullets.push({ x: ship.x + 8, y: ship.y, width: 4, height: 15, speed: 10 });
+                        bullets.push({ x: ship.x + ship.width - 12, y: ship.y, width: 4, height: 15, speed: 10 });
+                    } else {
+                        bullets.push({ x: ship.x + ship.width / 2 - 2, y: ship.y, width: 4, height: 15, speed: 10 });
+                    }
+                    playSound('shoot');
+                }
+
+                enemyTimer++;
+                if (enemyTimer > 45) {
+                    enemyTimer = 0;
+                    enemies.push({
+                        x: Math.random() * (canvas.width - 40),
+                        y: -40,
+                        width: 40,
+                        height: 40,
+                        speed: 3
+                    });
+                }
+
+                // кулі
+                ctx.fillStyle = '#00ffff';
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    let b = bullets[i];
+                    b.y -= b.speed;
+                    ctx.fillRect(b.x, b.y, b.width, b.height);
+                    if (b.y < 0) bullets.splice(i, 1);
+                }
+
+                // вороги
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    let en = enemies[i];
+                    en.y += en.speed;
+
+                    ctx.fillStyle = '#ff0055';
+                    ctx.beginPath();
+                    ctx.arc(en.x + 20, en.y + 20, 20, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // зіткнення з кулею
+                    for (let j = bullets.length - 1; j >= 0; j--) {
+                        let b = bullets[j];
+                        if (b.x < en.x + en.width && b.x + b.width > en.x && b.y < en.y + en.height && b.y + b.height > en.y) {
+                            score += 100;
+                            coins += 1;
+                            sessionCoins += 1;
+                            saveGameData();
+                            updateCoinsUI();
+                            document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
+                            playSound('explosion');
+
+                            if (Math.random() < 0.25) {
+                                hearts.push({ x: en.x, y: en.y, size: 25, speed: 2 });
+                            }
+
+                            enemies.splice(i, 1);
+                            bullets.splice(j, 1);
+                            break;
+                        }
+                    }
+
+                    // зіткнення з кораблем
+                    if (en && ship.x < en.x + en.width && ship.x + ship.width > en.x && ship.y < en.y + en.height && ship.y + ship.height > en.y) {
+                        lives--;
+                        document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
+                        playSound('hit');
+                        enemies.splice(i, 1);
+                        if (lives <= 0) gameOver();
+                    } else if (en && en.y > canvas.height) {
+                        enemies.splice(i, 1);
+                    }
+                }
+
+                // бонуси
+                for (let i = hearts.length - 1; i >= 0; i--) {
+                    let h = hearts[i];
+                    h.y += h.speed;
+                    ctx.fillStyle = '#00ffaa';
+                    ctx.font = '20px sans-serif';
+                    ctx.fillText('❤️', h.x, h.y);
+
+                    if (ship.x < h.x + h.size && ship.x + ship.width > h.x && ship.y < h.y + h.size && ship.y + ship.height > h.y) {
+                        lives++;
+                        document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
+                        hearts.splice(i, 1);
+                    } else if (h.y > canvas.height) {
+                        hearts.splice(i, 1);
+                    }
+                }
+            }
+
+            // малюємо корабель
+            let shipColor = '#00f0ff';
+            if (currentSkin === 'green') shipColor = '#00ff66';
+            if (currentSkin === 'red') shipColor = '#ff0033';
+            if (currentSkin === 'gold') shipColor = '#ffd700';
+
+            ctx.fillStyle = shipColor;
+            ctx.beginPath();
+            ctx.moveTo(ship.x + ship.width / 2, ship.y);
+            ctx.lineTo(ship.x + ship.width, ship.y + ship.height);
+            ctx.lineTo(ship.x, ship.y + ship.height);
+            ctx.closePath();
+            ctx.fill();
+
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>
