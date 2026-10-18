@@ -23,12 +23,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 5px 0 15px 0;
         }
 
         .hud {
             width: 100%;
-            padding: 8px 12px;
+            padding: 6px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -55,7 +55,7 @@
         .badge {
             background: rgba(10, 10, 30, 0.7);
             border: 2px solid #00f0ff;
-            padding: 5px 10px;
+            padding: 4px 10px;
             border-radius: 15px;
             font-weight: bold;
             font-size: 13px;
@@ -69,50 +69,54 @@
             align-items: center;
             justify-content: center;
             flex: 1;
+            margin: 5px 0;
         }
         canvas#snakeCanvas {
             background: rgba(5, 5, 20, 0.9);
             border: 2px solid #00f0ff;
             border-radius: 12px;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            width: 360px;
-            height: 360px;
-            max-width: 92vw;
-            max-height: 92vw;
+            width: 340px;
+            height: 340px;
+            max-width: 94vw;
+            max-height: 94vw;
         }
 
+        /* Підняті та зручні кнопки */
         .controls {
             width: 100%;
-            max-width: 300px;
-            padding: 5px 10px 10px;
+            max-width: 320px;
+            padding: 0 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             z-index: 10;
         }
         .ctrl-row {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             width: 100%;
         }
         .ctrl-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 240, 255, 0.15);
             border: 2px solid #00f0ff;
-            border-radius: 16px;
+            border-radius: 18px;
             color: #00f0ff;
-            font-size: 26px;
+            font-size: 28px;
             font-weight: bold;
-            height: 55px;
-            width: 85px;
+            height: 60px;
+            width: 95px;
             display: flex;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
         }
         .ctrl-btn:active {
-            background: rgba(0, 240, 255, 0.3);
+            background: rgba(0, 240, 255, 0.4);
+            transform: scale(0.95);
         }
 
         .overlay {
@@ -160,6 +164,7 @@
         <canvas id="snakeCanvas" width="400" height="400"></canvas>
     </div>
 
+    <!-- Зручні кнопки керування вище -->
     <div class="controls">
         <div class="ctrl-row">
             <div class="ctrl-btn" id="upBtn">▲</div>
@@ -313,8 +318,8 @@
             document.getElementById('pauseMenu').classList.add('hidden');
 
             clearInterval(gameInterval);
-            // Ультра-повільна швидкість (600 мс на один крок) для зручного скріншота
-            gameInterval = setInterval(main, 600);
+            // Нормальна комфортна швидкість (200 мс)
+            gameInterval = setInterval(main, 200);
         }
 
         function togglePause() {
