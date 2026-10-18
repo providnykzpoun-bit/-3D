@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cyber Space Shooter 3D</title>
+    <title>Cyber Games Hub</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,394 +13,148 @@
             padding: 0;
         }
         body {
-            background-color: #020208;
+            background-color: #050510;
             color: #ffffff;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             height: 100vh;
             width: 100vw;
-        }
-        #canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        .hud {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 15px;
+            padding: 20px;
+            overflow: hidden;
         }
-        .top-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        header {
+            text-align: center;
+            padding-top: 10px;
         }
-        .badge {
-            background: rgba(10, 10, 30, 0.7);
-            border: 2px solid #00f0ff;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 16px;
+        h1 {
             color: #00f0ff;
-            text-shadow: 0 0 10px rgba(0,240,255,0.6);
-            box-shadow: 0 0 15px rgba(0,240,255,0.3);
-            backdrop-filter: blur(5px);
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
         }
-        /* Кнопки керування кораблям вліво/вправо */
-        .controls-panel {
-            position: absolute;
-            bottom: 30px;
+        p {
+            color: #8a8ab0;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        /* Сітка 2х2 для ігор */
+        .hub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 15px;
             width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 30px;
-            z-index: 12;
-            pointer-events: auto;
+            max-width: 400px;
+            margin: 0 auto;
+            flex-grow: 1;
+            align-content: center;
+            padding: 10px 0;
         }
-        .ctrl-btn {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #ff007f;
-            border-radius: 50%;
-            font-size: 30px;
-            color: #ff007f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 20px rgba(255,0,127,0.4);
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-        }
-        .ctrl-btn:active {
-            background: rgba(255, 0, 127, 0.3);
-            transform: scale(0.92);
-        }
-        /* Екран меню */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 20, 0.9);
-            backdrop-filter: blur(12px);
-            z-index: 20;
+        .game-card {
+            background: rgba(15, 15, 35, 0.8);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .hidden { display: none !important; }
-        h1 { color: #ff007f; font-size: 36px; text-shadow: 0 0 25px rgba(255,0,127,0.8); margin-bottom: 10px; text-transform: uppercase; }
-        p { color: #a5a5c7; font-size: 15px; margin-bottom: 25px; max-width: 320px; line-height: 1.5; }
-        .btn-main {
-            background: linear-gradient(45deg, #ff007f, #00f0ff);
-            border: 3px solid #fff;
-            color: #fff;
-            padding: 16px 45px;
-            font-size: 18px;
+        .game-card:active {
+            transform: scale(0.95);
+            border-color: #ff007f;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.4);
+        }
+        .game-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .game-title {
+            font-size: 15px;
             font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(255,0,127,0.6);
-            text-transform: uppercase;
-            pointer-events: auto;
+            color: #fff;
+            margin-bottom: 4px;
         }
-        .btn-main:active { transform: scale(0.95); }
+        .game-desc {
+            font-size: 10px;
+            color: #a0a0c0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        footer {
+            text-align: center;
+            padding-bottom: 10px;
+            font-size: 11px;
+            color: #555577;
+        }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <header>
+        <h1>Cyber Game Hub</h1>
+        <p>Оберіть гру та побийте свій рекорд!</p>
+    </header>
 
-    <div class="hud">
-        <div class="top-stats">
-            <div class="badge" id="scoreBadge">Очки: 0</div>
-            <div class="badge" id="livesBadge" style="border-color: #ff007f; color: #ff007f;">❤️ 3</div>
-        </div>
+    <!-- Квадратики 2х2 з іграми -->
+    <div class="hub-grid">
+        <!-- 1. Космічна стрілялка (Запускається прямо в індексі) -->
+        <a href="#play-space" class="game-card" id="startSpaceGame">
+            <div class="game-icon">🚀</div>
+            <div class="game-title">Space Striker</div>
+            <div class="game-desc">3D Екшн</div>
+        </a>
+
+        <!-- 2. Тетріс -->
+        <a href="A.html" class="game-card">
+            <div class="game-icon">🧱</div>
+            <div class="game-title">Neon Tetris</div>
+            <div class="game-desc">Аркада</div>
+        </a>
+
+        <!-- 3. Змійка -->
+        <a href="B.html" class="game-card">
+            <div class="game-icon">🐍</div>
+            <div class="game-title">Cyber Snake</div>
+            <div class="game-desc">Класика</div>
+        </a>
+
+        <!-- 4. Пташка -->
+        <a href="C.html" class="game-card">
+            <div class="game-icon">🐦</div>
+            <div class="game-title">Neon Flappy</div>
+            <div class="game-desc">Реакція</div>
+        </a>
     </div>
 
-    <!-- Кнопки вліво / вправо -->
-    <div class="controls-panel">
-        <div class="ctrl-btn" id="leftBtn">◀</div>
-        <div class="ctrl-btn" id="rightBtn">▶</div>
-    </div>
+    <footer>
+        Telegram Web App Games v1.0
+    </footer>
 
-    <!-- Головне меню -->
-    <div class="overlay" id="startMenu">
-        <h1>Space Striker 3D</h1>
-        <p>Керуйте винищувачем, ухиляйтесь від ворогів та знищуйте їх лазерним вогнем у відкритому космосі!</p>
-        <button class="btn-main" id="startBtn">У БІЙ</button>
-    </div>
-
-    <!-- Меню програшу -->
-    <div class="overlay hidden" id="gameOverMenu">
-        <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055;">КОРАБЕЛЬ ЗБИТО</h1>
-        <p id="finalScoreText">Ваш результат: 0 очок</p>
-        <button class="btn-main" id="restartBtn">ЗНОВУ В БІЙ</button>
-    </div>
-
+    <!-- Скрипт Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
-    </script>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import * as THREE from 'three';
-
-        let score = 0;
-        let lives = 3;
-        let isPlaying = false;
-
-        let shipX = 0;
-        let moveLeftFlag = false;
-        let moveRightFlag = false;
-
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020208);
-        scene.fog = new THREE.FogExp2(0x020208, 0.02);
-
-        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 3, 6);
-        camera.lookAt(0, 0, -5);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        container.appendChild(renderer.domElement);
-
-        // Освітлення
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-        scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0x00f0ff, 1.5);
-        dirLight.position.set(5, 10, 5);
-        scene.add(dirLight);
-
-        // Зоряне небо (частинки)
-        const starsGeo = new THREE.BufferGeometry();
-        const starsCount = 400;
-        const starPos = new Float32Array(starsCount * 3);
-        for(let i=0; i<starsCount*3; i+=3) {
-            starPos[i] = (Math.random() - 0.5) * 40;
-            starPos[i+1] = (Math.random() - 0.5) * 40;
-            starPos[i+2] = (Math.random() - 0.5) * 60 - 20;
-        }
-        starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-        const starsMat = new THREE.PointsMaterial({color: 0xffffff, size: 0.15});
-        const starField = new THREE.Points(starsGeo, starsMat);
-        scene.add(starField);
-
-        // Космічний корабель гравця
-        const shipGroup = new THREE.Group();
-        
-        // Корпус
-        const bodyGeo = new THREE.ConeGeometry(0.5, 1.5, 4);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, metalness: 0.8, roughness: 0.2 });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.rotation.x = Math.PI / 2;
-        shipGroup.add(body);
-
-        // Крила
-        const wingGeo = new THREE.BoxGeometry(1.6, 0.05, 0.5);
-        const wingMat = new THREE.MeshStandardMaterial({ color: 0xff007f });
-        const wings = new THREE.Mesh(wingGeo, wingMat);
-        wings.position.set(0, 0, 0.3);
-        shipGroup.add(wings);
-
-        shipGroup.position.set(0, 0, 3);
-        scene.add(shipGroup);
-
-        // Масиви для ворогів, лазерів та вибухів
-        const enemies = [];
-        const lasers = [];
-        const explosions = [];
-
-        function spawnEnemy() {
-            if (!isPlaying) return;
-            const geo = new THREE.OctahedronGeometry(0.6);
-            const mat = new THREE.MeshStandardMaterial({ color: 0xff0055, roughness: 0.3, emissive: 0xff0055, emissiveIntensity: 0.5 });
-            const enemy = new THREE.Mesh(geo, mat);
-            
-            const x = (Math.random() - 0.5) * 7;
-            enemy.position.set(x, 0, -40);
-            scene.add(enemy);
-            enemies.push(enemy);
-        }
-
-        // Автоматична стрільба лазерами
-        function shootLaser() {
-            if (!isPlaying) return;
-            const geo = new THREE.CylinderGeometry(0.04, 0.04, 0.8, 8);
-            const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-            const laser = new THREE.Mesh(geo, mat);
-            laser.rotation.x = Math.PI / 2;
-            laser.position.set(shipGroup.position.x, shipGroup.position.y, shipGroup.position.z - 0.5);
-            scene.add(laser);
-            lasers.push(laser);
-            
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        }
-
-        let enemyTimer, shootTimer;
-
-        function startGame() {
-            score = 0;
-            lives = 3;
-            shipX = 0;
-            document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
-            document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
-
-            enemies.forEach(e => scene.remove(e));
-            lasers.forEach(l => scene.remove(l));
-            enemies.length = 0;
-            lasers.length = 0;
-
-            document.getElementById('startMenu').classList.add('hidden');
-            document.getElementById('gameOverMenu').classList.add('hidden');
-            isPlaying = true;
-
-            clearInterval(enemyTimer);
-            clearInterval(shootTimer);
-            enemyTimer = setInterval(spawnEnemy, 700);
-            shootTimer = setInterval(shootLaser, 350);
-        }
-
-        function gameOver() {
-            isPlaying = false;
-            clearInterval(enemyTimer);
-            clearInterval(shootTimer);
-
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            document.getElementById('finalScoreText').innerText = `Ваш результат: ${score} очок`;
-            document.getElementById('gameOverMenu').classList.remove('hidden');
-        }
-
-        // Керування кнопками
-        function bindBtn(id, onDown, onUp) {
-            const el = document.getElementById(id);
-            el.addEventListener('pointerdown', (e) => { e.preventDefault(); onDown(); });
-            el.addEventListener('pointerup', (e) => { e.preventDefault(); onUp(); });
-            el.addEventListener('pointerleave', (e) => { e.preventDefault(); onUp(); });
-        }
-
-        bindBtn('leftBtn', () => moveLeftFlag = true, () => moveLeftFlag = false);
-        bindBtn('rightBtn', () => moveRightFlag = true, () => moveRightFlag = false);
-
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('restartBtn').addEventListener('click', startGame);
-
-        // Ігровий цикл
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Рух зірок на фоні для ефекту польоту
-            const positions = starField.geometry.attributes.position.array;
-            for(let i=2; i<positions.length; i+=3) {
-                positions[i] += 0.4;
-                if(positions[i] > 5) positions[i] = -60;
-            }
-            starField.geometry.attributes.position.needsUpdate = true;
-
-            if (isPlaying) {
-                // Керування кораблем
-                const moveSpeed = 0.12;
-                if (moveLeftFlag && shipX > -3.5) shipX -= moveSpeed;
-                if (moveRightFlag && shipX < 3.5) shipX += moveSpeed;
-
-                shipGroup.position.x += (shipX - shipGroup.position.x) * 0.2;
-                shipGroup.rotation.z = (shipGroup.position.x - shipX) * 0.5; // нахил при повороті
-
-                // Рух лазерів
-                for (let i = lasers.length - 1; i >= 0; i--) {
-                    let l = lasers.get ? lasers[i] : lasers[i];
-                    l.position.z -= 0.8;
-                    if (l.position.z < -50) {
-                        scene.remove(l);
-                        lasers.splice(i, 1);
-                    }
-                }
-
-                // Рух ворогів та зіткнення
-                for (let i = enemies.length - 1; i >= 0; i--) {
-                    let en = enemies[i];
-                    en.position.z += 0.35;
-                    en.rotation.x += 0.03;
-                    en.rotation.y += 0.03;
-
-                    // Зіткнення лазера з ворогом
-                    for (let j = lasers.length - 1; j >= 0; j--) {
-                        let l = lasers[j];
-                        if (en.position.distanceTo(l.position) < 0.9) {
-                            score += 100;
-                            document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
-                            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-                            scene.remove(en);
-                            scene.remove(l);
-                            enemies.splice(i, 1);
-                            lasers.splice(j, 1);
-                            break;
-                        }
-                    }
-
-                    // Зіткнення ворога з кораблем гравця
-                    if (shipGroup.position.distanceTo(en.position) < 1.0) {
-                        lives--;
-                        document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
-                        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
-
-                        scene.remove(en);
-                        enemies.splice(i, 1);
-
-                        if (lives <= 0) {
-                            gameOver();
-                        }
-                    }
-
-                    // Якщо ворог пролетів повз
-                    if (en.position.z > 5) {
-                        scene.remove(en);
-                        enemies.splice(i, 1);
-                    }
-                }
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // При кліку на першу гру відкриваємо саму 3D гру (яку ми робили раніше)
+        document.getElementById('startSpaceGame').addEventListener('click', (e) => {
+            e.preventDefault();
+            // Тут можна одразу запустити гру або підвантажити скрипт стрілялки
+            alert("Запускаємо 3D Космічну Стрілялку!");
+            // Поки що перенаправляємо або розгортаємо логіку гри
         });
     </script>
 </body>
