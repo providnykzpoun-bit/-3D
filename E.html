@@ -135,7 +135,6 @@
             margin-top: 10px;
         }
 
-        /* Элементы Магазина */
         .shop-box {
             width: 100%;
             max-width: 340px;
@@ -220,7 +219,6 @@
         <p style="color: #ffd700; font-size: 14px;">Ваші монети: <span id="shopCoinsTotal">0</span> 🪙</p>
 
         <div class="shop-box">
-            <!-- Скины -->
             <div style="color: #ff007f; font-size: 12px; text-align: left; margin-bottom: 5px; font-weight: bold;">КОЛІР КОРАБЛЯ</div>
             
             <div class="shop-item">
@@ -255,7 +253,6 @@
                 <button class="btn-buy" id="skinGoldBtn">Купити</button>
             </div>
 
-            <!-- Апгрейды -->
             <div style="color: #ff007f; font-size: 12px; text-align: left; margin: 10px 0 5px; font-weight: bold;">ПОКРАЩЕННЯ</div>
 
             <div class="shop-item">
@@ -314,7 +311,6 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // --- СОХРАНЕНИЯ (LocalStorage) ---
         let coins = parseInt(localStorage.getItem('space_coins') || '0');
         let currentSkin = localStorage.getItem('space_skin') || 'cyan';
         let ownedSkins = JSON.parse(localStorage.getItem('space_owned_skins') || '["cyan"]');
@@ -342,6 +338,9 @@
             document.getElementById('coinsTotal').innerText = coins;
             document.getElementById('shopCoinsTotal').innerText = coins;
         }
+
+        // Одразу оновлюємо монети на головному екрані при завантаженні
+        updateCoinsUI();
 
         // --- АУДИО ---
         let audioCtx = null;
@@ -415,7 +414,6 @@
         dirLight.position.set(5, 10, 5);
         scene.add(dirLight);
 
-        // Звезды
         const starsGeo = new THREE.BufferGeometry();
         const starsCount = 400;
         const starPos = new Float32Array(starsCount * 3);
@@ -428,7 +426,6 @@
         const starField = new THREE.Points(starsGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.15}));
         scene.add(starField);
 
-        // Корабль
         const shipGroup = new THREE.Group();
         const shipMaterial = new THREE.MeshStandardMaterial({ color: 0x00f0ff, metalness: 0.8 });
         const body = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.5, 4), shipMaterial);
@@ -553,7 +550,7 @@
             document.getElementById('gameOverMenu').classList.remove('hidden');
         }
 
-        // --- МАНАДЖЕР МАГАЗИНА ---
+        // --- МАГАЗИН ---
         function refreshShopUI() {
             updateCoinsUI();
 
@@ -588,7 +585,6 @@
             setupItem('skinRedBtn', 'red', true, 1000);
             setupItem('skinGoldBtn', 'gold', true, 2500);
 
-            // Апгрейды
             const dblBtn = document.getElementById('upgDoubleLaserBtn');
             if (hasDoubleLaser) {
                 dblBtn.innerText = 'Куплено';
@@ -630,6 +626,7 @@
             document.getElementById('shopMenu').classList.remove('hidden');
         });
         document.getElementById('closeShopBtn').addEventListener('click', () => {
+            refreshShopUI();
             document.getElementById('shopMenu').classList.add('hidden');
         });
 
@@ -660,7 +657,6 @@
                 shipGroup.position.x += (shipX - shipGroup.position.x) * 0.2;
                 shipGroup.rotation.z = (shipGroup.position.x - shipX) * 0.5;
 
-                // Лазеры
                 for (let i = lasers.length - 1; i >= 0; i--) {
                     let l = lasers[i];
                     l.position.z -= 0.8;
@@ -670,7 +666,6 @@
                     }
                 }
 
-                // Бонусы ❤️
                 for (let i = bonuses.length - 1; i >= 0; i--) {
                     let b = bonuses[i];
                     b.position.z += 0.25;
@@ -689,7 +684,6 @@
                     }
                 }
 
-                // Враги
                 for (let i = enemies.length - 1; i >= 0; i--) {
                     let en = enemies[i];
                     en.position.z += 0.35;
@@ -731,7 +725,6 @@
             renderer.render(scene, camera);
         }
 
-        updateCoinsUI();
         animate();
 
         window.addEventListener('resize', () => {
