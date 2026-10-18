@@ -109,7 +109,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(5, 5, 20, 0.9);
+            background: rgba(5, 5, 20, 0.92);
             backdrop-filter: blur(12px);
             z-index: 20;
             display: flex;
@@ -124,14 +124,64 @@
             background: linear-gradient(45deg, #ff007f, #00f0ff);
             border: 3px solid #fff;
             color: #fff;
-            padding: 16px 45px;
+            padding: 14px 40px;
             font-size: 18px;
             font-weight: bold;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 0 30px rgba(255,0,127,0.6);
+            box-shadow: 0 0 25px rgba(255,0,127,0.6);
             text-transform: uppercase;
             pointer-events: auto;
+            margin-top: 10px;
+        }
+
+        /* Элементы Магазина */
+        .shop-box {
+            width: 100%;
+            max-width: 340px;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid #00f0ff;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .shop-item-info {
+            text-align: left;
+        }
+        .shop-item-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
+        }
+        .shop-item-cost {
+            font-size: 12px;
+            color: #ffd700;
+        }
+        .btn-buy {
+            background: #00f0ff;
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-buy.equipped {
+            background: #ff007f;
+            color: #fff;
         }
     </style>
 </head>
@@ -155,14 +205,80 @@
         <div class="ctrl-btn" id="rightBtn">▶</div>
     </div>
 
-    <!-- Меню старту -->
+    <!-- Меню старта -->
     <div class="overlay" id="startMenu">
-        <h1 style="color: #ff007f; font-size: 32px; margin-bottom: 10px; text-transform: uppercase;">Space Striker 3D</h1>
-        <p style="color: #a5a5c7; margin-bottom: 20px; max-width: 300px;">Знищуйте ворогів, ловіть бонуси ❤️ та набирайте максимум очок!</p>
-        <button class="btn-main" id="startBtn">ПОЧАТИ</button>
+        <h1 style="color: #ff007f; font-size: 28px; margin-bottom: 5px; text-transform: uppercase;">Space Striker 3D</h1>
+        <p style="color: #ffd700; font-weight: bold; font-size: 16px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
+        
+        <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
+        <button class="btn-hud" id="openShopBtn" style="margin-top: 15px; padding: 10px 20px; font-size: 14px; border-color: #00f0ff; color: #00f0ff;">🛒 Магазин покращень</button>
     </div>
 
-    <!-- Меню паузи -->
+    <!-- Меню Магазина -->
+    <div class="overlay hidden" id="shopMenu">
+        <h2 style="color: #00f0ff; font-size: 24px; margin-bottom: 5px;">🛒 Магазин покращень</h2>
+        <p style="color: #ffd700; font-size: 14px;">Ваші монети: <span id="shopCoinsTotal">0</span> 🪙</p>
+
+        <div class="shop-box">
+            <!-- Скины -->
+            <div style="color: #ff007f; font-size: 12px; text-align: left; margin-bottom: 5px; font-weight: bold;">КОЛІР КОРАБЛЯ</div>
+            
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Неоновий Блакитний</div>
+                    <div class="shop-item-cost">Безкоштовно</div>
+                </div>
+                <button class="btn-buy" id="skinCyanBtn">Обрати</button>
+            </div>
+
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Смарагдовий Зелений</div>
+                    <div class="shop-item-cost">500 🪙</div>
+                </div>
+                <button class="btn-buy" id="skinGreenBtn">Купити</button>
+            </div>
+
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Вогняний Червоний</div>
+                    <div class="shop-item-cost">1000 🪙</div>
+                </div>
+                <button class="btn-buy" id="skinRedBtn">Купити</button>
+            </div>
+
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Золотий Кіберпанк</div>
+                    <div class="shop-item-cost">2500 🪙</div>
+                </div>
+                <button class="btn-buy" id="skinGoldBtn">Купити</button>
+            </div>
+
+            <!-- Апгрейды -->
+            <div style="color: #ff007f; font-size: 12px; text-align: left; margin: 10px 0 5px; font-weight: bold;">ПОКРАЩЕННЯ</div>
+
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Подвійний Лазер ⚡</div>
+                    <div class="shop-item-cost">1500 🪙</div>
+                </div>
+                <button class="btn-buy" id="upgDoubleLaserBtn">Купити</button>
+            </div>
+
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-title">Старт з +1 ❤️</div>
+                    <div class="shop-item-cost">800 🪙</div>
+                </div>
+                <button class="btn-buy" id="upgExtraLifeBtn">Купити</button>
+            </div>
+        </div>
+
+        <button class="btn-main" id="closeShopBtn" style="padding: 10px 30px; font-size: 15px;">Назад</button>
+    </div>
+
+    <!-- Меню паузы -->
     <div class="overlay hidden" id="pauseMenu">
         <h1 style="color: #00f0ff; font-size: 32px; margin-bottom: 20px; text-transform: uppercase;">Гра на паузі</h1>
         <button class="btn-main" id="resumeBtn" style="margin-bottom: 15px;">Продовжити</button>
@@ -170,10 +286,11 @@
         <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px;">🏠 В Головне Меню</a>
     </div>
 
-    <!-- Меню програшу -->
+    <!-- Меню поражения -->
     <div class="overlay hidden" id="gameOverMenu">
         <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055; font-size: 30px; margin-bottom: 10px;">КОРАБЕЛЬ ЗБИТО</h1>
-        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 20px;">Ваш результат: 0 очок</p>
+        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px;">Ваш результат: 0 очок</p>
+        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Зароблено монет: +0 🪙</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ В БІЙ</button>
         <br>
         <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px; margin-top: 10px; display: inline-block;">В Головне Меню</a>
@@ -197,8 +314,15 @@
     <script type="module">
         import * as THREE from 'three';
 
+        // --- СОХРАНЕНИЯ (LocalStorage) ---
+        let coins = parseInt(localStorage.getItem('space_coins') || '0');
+        let currentSkin = localStorage.getItem('space_skin') || 'cyan';
+        let ownedSkins = JSON.parse(localStorage.getItem('space_owned_skins') || '["cyan"]');
+        let hasDoubleLaser = localStorage.getItem('space_upg_double_laser') === 'true';
+        let hasExtraLife = localStorage.getItem('space_upg_extra_life') === 'true';
+
         let score = 0;
-        let lives = 5; // Тепер 5 життів!
+        let lives = 5;
         let isPlaying = false;
         let isPaused = false;
 
@@ -206,12 +330,23 @@
         let moveLeftFlag = false;
         let moveRightFlag = false;
 
-        // --- АУДІО СИСТЕМА ---
+        function saveGameData() {
+            localStorage.setItem('space_coins', coins.toString());
+            localStorage.setItem('space_skin', currentSkin);
+            localStorage.setItem('space_owned_skins', JSON.stringify(ownedSkins));
+            localStorage.setItem('space_upg_double_laser', hasDoubleLaser);
+            localStorage.setItem('space_upg_extra_life', hasExtraLife);
+        }
+
+        function updateCoinsUI() {
+            document.getElementById('coinsTotal').innerText = coins;
+            document.getElementById('shopCoinsTotal').innerText = coins;
+        }
+
+        // --- АУДИО ---
         let audioCtx = null;
         function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
 
         function playSound(type) {
@@ -221,7 +356,6 @@
                 let gain = audioCtx.createGain();
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-
                 let now = audioCtx.currentTime;
 
                 if (type === 'shoot') {
@@ -248,7 +382,7 @@
                     gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
                     osc.start(now);
                     osc.stop(now + 0.3);
-                } else if (type === 'heal') { // Звук підбору життя
+                } else if (type === 'heal') {
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(400, now);
                     osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
@@ -260,6 +394,7 @@
             } catch(e) {}
         }
 
+        // --- THREE.JS СЦЕНА ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x020208);
@@ -280,7 +415,7 @@
         dirLight.position.set(5, 10, 5);
         scene.add(dirLight);
 
-        // Зорі
+        // Звезды
         const starsGeo = new THREE.BufferGeometry();
         const starsCount = 400;
         const starPos = new Float32Array(starsCount * 3);
@@ -293,9 +428,10 @@
         const starField = new THREE.Points(starsGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.15}));
         scene.add(starField);
 
-        // Корабель
+        // Корабль
         const shipGroup = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.5, 4), new THREE.MeshStandardMaterial({ color: 0x00f0ff, metalness: 0.8 }));
+        const shipMaterial = new THREE.MeshStandardMaterial({ color: 0x00f0ff, metalness: 0.8 });
+        const body = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.5, 4), shipMaterial);
         body.rotation.x = Math.PI / 2;
         shipGroup.add(body);
         const wings = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.5), new THREE.MeshStandardMaterial({ color: 0xff007f }));
@@ -304,9 +440,17 @@
         shipGroup.position.set(0, 0, 3);
         scene.add(shipGroup);
 
+        function updateShipColor() {
+            let colorHex = 0x00f0ff;
+            if (currentSkin === 'green') colorHex = 0x00ff66;
+            if (currentSkin === 'red') colorHex = 0xff0033;
+            if (currentSkin === 'gold') colorHex = 0xffd700;
+            shipMaterial.color.setHex(colorHex);
+        }
+
         const enemies = [];
         const lasers = [];
-        const bonuses = []; // Списочок бонусів-сердечок
+        const bonuses = [];
 
         function spawnEnemy() {
             if (!isPlaying || isPaused) return;
@@ -317,7 +461,6 @@
         }
 
         function spawnHeart(pos) {
-            // Рожево-зелена сяюча сфера (бонус +1 життя)
             const heart = new THREE.Mesh(
                 new THREE.SphereGeometry(0.4, 12, 12),
                 new THREE.MeshStandardMaterial({ color: 0x00ffaa, emissive: 0x00ffaa, emissiveIntensity: 0.8 })
@@ -327,13 +470,23 @@
             bonuses.push(heart);
         }
 
-        function shootLaser() {
-            if (!isPlaying || isPaused) return;
+        function createLaserMesh(xOffset) {
             const laser = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8, 8), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
             laser.rotation.x = Math.PI / 2;
-            laser.position.set(shipGroup.position.x, shipGroup.position.y, shipGroup.position.z - 0.5);
+            laser.position.set(shipGroup.position.x + xOffset, shipGroup.position.y, shipGroup.position.z - 0.5);
             scene.add(laser);
             lasers.push(laser);
+        }
+
+        function shootLaser() {
+            if (!isPlaying || isPaused) return;
+
+            if (hasDoubleLaser) {
+                createLaserMesh(-0.3);
+                createLaserMesh(0.3);
+            } else {
+                createLaserMesh(0);
+            }
 
             playSound('shoot');
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -344,9 +497,11 @@
         function startGame() {
             initAudio();
             score = 0;
-            lives = 5; // 5 життів
+            lives = 5 + (hasExtraLife ? 1 : 0);
             shipX = 0;
             isPaused = false;
+            
+            updateShipColor();
             document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
             document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
 
@@ -360,6 +515,7 @@
             document.getElementById('startMenu').classList.add('hidden');
             document.getElementById('gameOverMenu').classList.add('hidden');
             document.getElementById('pauseMenu').classList.add('hidden');
+            document.getElementById('shopMenu').classList.add('hidden');
             isPlaying = true;
 
             clearInterval(enemyTimer);
@@ -385,15 +541,97 @@
             isPlaying = false;
             clearInterval(enemyTimer);
             clearInterval(shootTimer);
+            
+            let earnedCoins = Math.floor(score / 10);
+            coins += earnedCoins;
+            saveGameData();
+            updateCoinsUI();
+
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             document.getElementById('finalScoreText').innerText = `Ваш результат: ${score} очок`;
+            document.getElementById('earnedCoinsText').innerText = `Зароблено монет: +${earnedCoins} 🪙`;
             document.getElementById('gameOverMenu').classList.remove('hidden');
+        }
+
+        // --- МАНАДЖЕР МАГАЗИНА ---
+        function refreshShopUI() {
+            updateCoinsUI();
+
+            const setupItem = (btnId, key, isSkin, cost) => {
+                const btn = document.getElementById(btnId);
+                if (isSkin) {
+                    if (currentSkin === key) {
+                        btn.innerText = 'Обрано';
+                        btn.className = 'btn-buy equipped';
+                    } else if (ownedSkins.includes(key)) {
+                        btn.innerText = 'Одягти';
+                        btn.className = 'btn-buy';
+                        btn.onclick = () => { currentSkin = key; saveGameData(); refreshShopUI(); };
+                    } else {
+                        btn.innerText = 'Купити';
+                        btn.className = 'btn-buy';
+                        btn.onclick = () => {
+                            if (coins >= cost) {
+                                coins -= cost;
+                                ownedSkins.push(key);
+                                currentSkin = key;
+                                saveGameData();
+                                refreshShopUI();
+                            } else alert('Недостатньо монет!');
+                        };
+                    }
+                }
+            };
+
+            setupItem('skinCyanBtn', 'cyan', true, 0);
+            setupItem('skinGreenBtn', 'green', true, 500);
+            setupItem('skinRedBtn', 'red', true, 1000);
+            setupItem('skinGoldBtn', 'gold', true, 2500);
+
+            // Апгрейды
+            const dblBtn = document.getElementById('upgDoubleLaserBtn');
+            if (hasDoubleLaser) {
+                dblBtn.innerText = 'Куплено';
+                dblBtn.className = 'btn-buy equipped';
+            } else {
+                dblBtn.onclick = () => {
+                    if (coins >= 1500) {
+                        coins -= 1500;
+                        hasDoubleLaser = true;
+                        saveGameData();
+                        refreshShopUI();
+                    } else alert('Недостатньо монет!');
+                };
+            }
+
+            const lifeBtn = document.getElementById('upgExtraLifeBtn');
+            if (hasExtraLife) {
+                lifeBtn.innerText = 'Куплено';
+                lifeBtn.className = 'btn-buy equipped';
+            } else {
+                lifeBtn.onclick = () => {
+                    if (coins >= 800) {
+                        coins -= 800;
+                        hasExtraLife = true;
+                        saveGameData();
+                        refreshShopUI();
+                    } else alert('Недостатньо монет!');
+                };
+            }
         }
 
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('restartBtn').addEventListener('click', startGame);
         document.getElementById('pauseBtn').addEventListener('click', togglePause);
         document.getElementById('resumeBtn').addEventListener('click', togglePause);
+
+        document.getElementById('openShopBtn').addEventListener('click', () => {
+            refreshShopUI();
+            document.getElementById('shopMenu').classList.remove('hidden');
+        });
+        document.getElementById('closeShopBtn').addEventListener('click', () => {
+            document.getElementById('shopMenu').classList.add('hidden');
+        });
 
         function bindBtn(id, onDown, onUp) {
             const el = document.getElementById(id);
@@ -422,7 +660,7 @@
                 shipGroup.position.x += (shipX - shipGroup.position.x) * 0.2;
                 shipGroup.rotation.z = (shipGroup.position.x - shipX) * 0.5;
 
-                // Рух лазерів
+                // Лазеры
                 for (let i = lasers.length - 1; i >= 0; i--) {
                     let l = lasers[i];
                     l.position.z -= 0.8;
@@ -432,13 +670,12 @@
                     }
                 }
 
-                // Рух бонусів ❤️
+                // Бонусы ❤️
                 for (let i = bonuses.length - 1; i >= 0; i--) {
                     let b = bonuses[i];
                     b.position.z += 0.25;
                     b.rotation.y += 0.05;
 
-                    // Гравець підбирає бонус
                     if (shipGroup.position.distanceTo(b.position) < 1.1) {
                         lives++;
                         document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
@@ -452,13 +689,12 @@
                     }
                 }
 
-                // Рух ворогів
+                // Враги
                 for (let i = enemies.length - 1; i >= 0; i--) {
                     let en = enemies[i];
                     en.position.z += 0.35;
                     en.rotation.x += 0.03;
 
-                    // Збивання ворога лазером
                     for (let j = lasers.length - 1; j >= 0; j--) {
                         let l = lasers[j];
                         if (en.position.distanceTo(l.position) < 0.9) {
@@ -467,10 +703,7 @@
                             playSound('explosion');
                             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
-                            // Шанс 20% на випадання бонуса ❤️ з ворога
-                            if (Math.random() < 0.2) {
-                                spawnHeart(en.position);
-                            }
+                            if (Math.random() < 0.2) spawnHeart(en.position);
 
                             scene.remove(en);
                             scene.remove(l);
@@ -480,7 +713,6 @@
                         }
                     }
 
-                    // Зіткнення з кораблем
                     if (shipGroup.position.distanceTo(en.position) < 1.0) {
                         lives--;
                         document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
@@ -499,6 +731,7 @@
             renderer.render(scene, camera);
         }
 
+        updateCoinsUI();
         animate();
 
         window.addEventListener('resize', () => {
