@@ -169,13 +169,13 @@
 
     <div class="overlay" id="startMenu">
         <h1>ROBLOX OBBY 3D</h1>
-        <p>Використовуйте стрілки для керування, збирайте зірки та стрибайте по платформах!</p>
+        <p>Збирайте зірки, переходьте на нові рівні (Stage) та станьте майстром оббі!</p>
         <button class="btn-main" id="startBtn">ГРАТИ</button>
     </div>
 
     <div class="overlay hidden" id="gameOverMenu">
         <h1 id="menuTitle">ПАДІННЯ!</h1>
-        <p id="menuText">Ви впали з платформи.</p>
+        <p id="menuText">Ви впали у прірву.</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ</button>
     </div>
 
@@ -201,7 +201,7 @@
         let currentStage = 1;
         let isPlaying = false;
 
-        const playerPos = new THREE.Vector3(0, 1.25, 0);
+        const playerPos = new THREE.Vector3(0, 1.0, 0);
         let playerVelocityY = 0;
         const gravity = -0.012;
         const jumpForce = 0.28;
@@ -229,20 +229,23 @@
         sun.position.set(10, 20, 10);
         scene.add(sun);
 
-        const platforms = [];
-        const stars = [];
+        let platforms = [];
+        let stars = [];
 
         function createLevel() {
             platforms.forEach(p => scene.remove(p));
             stars.forEach(s => scene.remove(s));
-            platforms.length = 0;
-            stars.length = 0;
+            platforms = [];
+            stars = [];
 
             let zPos = 0;
-            for (let i = 0; i < 30; i++) {
-                const width = 4.0;
-                const height = 0.6;
-                const depth = 4.0;
+            // З кожним етапом додаємо більше платформ
+            const totalPlatforms = 20 + (currentStage * 5);
+
+            for (let i = 0; i < totalPlatforms; i++) {
+                const width = 3.5;
+                const height = 0.5;
+                const depth = 3.5;
                 
                 const geom = new THREE.BoxGeometry(width, height, depth);
                 const mat = new THREE.MeshStandardMaterial({ 
@@ -251,35 +254,37 @@
                 });
                 const platform = new THREE.Mesh(geom, mat);
 
-                let xPos = (i === 0) ? 0 : (Math.random() - 0.5) * 4.0;
+                // На складніших етапах розкид платформ в сторони ширший
+                let xPos = (i === 0) ? 0 : (Math.random() - 0.5) * (3.0 + currentStage * 0.5);
                 if (i === 0) zPos = 0;
-                else zPos -= 4.0;
+                else zPos -= 4.2;
 
                 platform.position.set(xPos, 0, zPos);
                 scene.add(platform);
                 platforms.push(platform);
 
                 if (i > 0) {
-                    const starGeo = new THREE.OctahedronGeometry(0.4);
+                    const starGeo = new THREE.OctahedronGeometry(0.3);
                     const starMat = new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.5 });
                     const star = new THREE.Mesh(starGeo, starMat);
-                    star.position.set(xPos, 1.3, zPos);
+                    star.position.set(xPos, 1.0, zPos);
                     scene.add(star);
                     stars.push(star);
                 }
             }
         }
 
+        // Зменшений персонаж (акуратний кубик-герой)
         const playerGroup = new THREE.Group();
 
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c });
-        const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 0.4), bodyMat);
-        body.position.y = 0.5;
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), bodyMat);
+        body.position.y = 0.3;
         playerGroup.add(body);
 
         const headMat = new THREE.MeshStandardMaterial({ color: 0xf1c40f });
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), headMat);
-        head.position.y = 1.3;
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), headMat);
+        head.position.y = 0.75;
         playerGroup.add(head);
 
         scene.add(playerGroup);
@@ -309,7 +314,7 @@
             document.getElementById('scoreBadge').innerText = `⭐ ${score}`;
             document.getElementById('stageBadge').innerText = `Stage ${currentStage}`;
 
-            playerPos.set(0, 1.25, 0);
+            playerPos.set(0, 1.0, 0);
             playerVelocityY = 0;
             createLevel();
 
@@ -323,7 +328,7 @@
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
 
             document.getElementById('menuTitle').innerText = reason;
-            document.getElementById('menuText').innerText = `Набрано зірок: ${score}`;
+            document.getElementById('menuText').innerText = `Зібрано зірок: ${score} | Дійшли до Stage ${currentStage}`;
             document.getElementById('gameOverMenu').classList.remove('hidden');
         }
 
@@ -343,16 +348,15 @@
                 playerPos.y += playerVelocityY;
 
                 let onAnyPlatform = false;
-                const platformSurfaceY = 0.3;
+                const platformSurfaceY = 0.25;
 
                 platforms.forEach(p => {
-                    // Збільшені межі, щоб персонаж впевнено ставав на блоки
                     if (
-                        playerPos.x > p.position.x - 2.0 && playerPos.x < p.position.x + 2.0 &&
-                        playerPos.z > p.position.z - 2.0 && playerPos.z < p.position.z + 2.0
+                        playerPos.x > p.position.x - 1.8 && playerPos.x < p.position.x + 1.8 &&
+                        playerPos.z > p.position.z - 1.8 && playerPos.z < p.position.z + 1.8
                     ) {
-                        if (playerVelocityY <= 0 && playerPos.y >= platformSurfaceY && playerPos.y <= platformSurfaceY + 0.8) {
-                            playerPos.y = platformSurfaceY + 0.65;
+                        if (playerVelocityY <= 0 && playerPos.y >= platformSurfaceY && playerPos.y <= platformSurfaceY + 0.6) {
+                            playerPos.y = platformSurfaceY + 0.5;
                             playerVelocityY = 0;
                             onAnyPlatform = true;
                         }
@@ -365,23 +369,32 @@
                     gameOver("ПАДІННЯ!");
                 }
 
+                // Збір зірок
                 for (let i = stars.length - 1; i >= 0; i--) {
                     let s = stars[i];
                     s.rotation.y += 0.05;
-                    if (playerPos.distanceTo(s.position) < 1.2) {
+                    if (playerPos.distanceTo(s.position) < 0.9) {
                         score += 1;
                         document.getElementById('scoreBadge').innerText = `⭐ ${score}`;
                         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                         scene.remove(s);
                         stars.splice(i, 1);
+
+                        // Якщо зібрали всі зірки рівня — перехід на наступний Stage!
+                        if (stars.length === 0) {
+                            currentStage++;
+                            document.getElementById('stageBadge').innerText = `Stage ${currentStage}`;
+                            playerPos.set(0, 1.0, 0); // повертаємо на старт нового рівня
+                            createLevel();
+                        }
                     }
                 }
 
                 playerGroup.position.copy(playerPos);
 
                 camera.position.x += (playerPos.x - camera.position.x) * 0.1;
-                camera.position.y += (playerPos.y + 3.5 - camera.position.y) * 0.1;
-                camera.position.z += (playerPos.z + 5.5 - camera.position.z) * 0.1;
+                camera.position.y += (playerPos.y + 3.0 - camera.position.y) * 0.1;
+                camera.position.z += (playerPos.z + 4.5 - camera.position.z) * 0.1;
                 camera.lookAt(playerPos.x, playerPos.y, playerPos.z);
             }
 
