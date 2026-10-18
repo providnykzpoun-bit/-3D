@@ -318,8 +318,8 @@
             document.getElementById('pauseMenu').classList.add('hidden');
 
             clearInterval(gameInterval);
-            // Нормальна комфортна швидкість (200 мс)
-            gameInterval = setInterval(main, 200);
+            // Ультра-повільна мінімальна швидкість (700 мс на один крок)
+            gameInterval = setInterval(main, 700);
         }
 
         function togglePause() {
