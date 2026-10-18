@@ -206,11 +206,12 @@
 
     <!-- Меню старту -->
     <div class="overlay" id="startMenu">
-        <h1 style="color: #ff007f; font-size: 28px; margin-bottom: 5px; text-transform: uppercase;">Space Striker 3D</h1>
-        <p style="color: #ffd700; font-weight: bold; font-size: 16px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
+        <h1 style="color: #ff007f; font-size: 26px; margin-bottom: 5px; text-transform: uppercase;">Space Striker 3D</h1>
+        <p style="color: #ffd700; font-weight: bold; font-size: 15px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
         
         <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
-        <button class="btn-hud" id="openShopBtn" style="margin-top: 15px; padding: 10px 20px; font-size: 14px; border-color: #00f0ff; color: #00f0ff;">🛒 Магазин покращень</button>
+        <button class="btn-hud" id="openShopBtn" style="margin-top: 12px; padding: 10px 20px; font-size: 14px; border-color: #00f0ff; color: #00f0ff; width: 100%;">🛒 Магазин покращень</button>
+        <button class="btn-hud" id="withdrawBtn" style="margin-top: 8px; padding: 10px 20px; font-size: 14px; border-color: #00ffaa; color: #00ffaa; width: 100%;">📤 Вивести UA Token</button>
     </div>
 
     <!-- Меню Магазина -->
@@ -339,8 +340,43 @@
             document.getElementById('shopCoinsTotal').innerText = coins;
         }
 
-        // Одразу оновлюємо монети на головному екрані при завантаженні
         updateCoinsUI();
+
+        // --- ЛОГІКА ВИВОДУ UA TOKEN (Мін. 50 UA = 50 000 монет) ---
+        document.getElementById('withdrawBtn').addEventListener('click', () => {
+            const MIN_COINS = 50000;
+            const COINS_PER_UA = 1000;
+
+            if (coins < MIN_COINS) {
+                alert(`Мінімальна сума для виводу: 50 UA (${MIN_COINS.toLocaleString()} монет)!\nУ вас зараз: ${coins.toLocaleString()} монет.`);
+                return;
+            }
+
+            let username = 'Гравець';
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                let user = tg.initDataUnsafe.user;
+                username = user.username ? `@${user.username}` : `${user.first_name || ''} (ID: ${user.id})`;
+            }
+
+            let uaAmount = (coins / COINS_PER_UA).toFixed(1);
+            let reportText = `📤 ЗАЯВКА НА ВИВІД UA\n🎮 Гра: Space Striker 3D\n👤 Нік: ${username}\n💰 Сума: ${uaAmount} UA (${coins} монет)`;
+
+            navigator.clipboard.writeText(reportText).then(() => {
+                alert('Чек виводу сформовано та скопійовано у буфер!\nЗараз ви перейдете в бот: надішліть йому цей текст.');
+            }).catch(() => {
+                alert(`Ваш чек:\n\n${reportText}\n\nНадішліть його у бот.`);
+            });
+
+            coins = 0;
+            saveGameData();
+            updateCoinsUI();
+
+            if (tg.openTelegramLink) {
+                tg.openTelegramLink('http://t.me/tokenpist_bot');
+            } else {
+                window.open('http://t.me/tokenpist_bot', '_blank');
+            }
+        });
 
         // --- АУДІО ---
         let audioCtx = null;
@@ -490,7 +526,7 @@
         }
 
         let enemyTimer, shootTimer;
-        let sessionCoins = 0; // Монети за поточну гру
+        let sessionCoins = 0;
 
         function startGame() {
             initAudio();
@@ -664,7 +700,7 @@
                 }
 
                 for (let i = bonuses.length - 1; i >= 0; i--) {
-                    let b = bonuses[i];
+                    let b = bonuses.[i];
                     b.position.z += 0.25;
                     b.rotation.y += 0.05;
 
@@ -691,9 +727,9 @@
                         if (en.position.distanceTo(l.position) < 0.9) {
                             score += 100;
                             
-                            // РЕАЛЬНИЙ ЧАС: кожні 100 очок одразу дають +10 монет і зберігаються!
-                            coins += 10;
-                            sessionCoins += 10;
+                            // Збалансовано: 1 ворог = 1 монета (замість 10)
+                            coins += 1;
+                            sessionCoins += 1;
                             saveGameData();
                             updateCoinsUI();
 
