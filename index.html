@@ -28,7 +28,6 @@
             height: 100%;
             z-index: 1;
         }
-        /* HUD Інтерфейс */
         .hud {
             position: absolute;
             top: 0;
@@ -56,7 +55,6 @@
             font-size: 16px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
-        /* Панель керування стрілками */
         .controls-panel {
             position: absolute;
             bottom: 25px;
@@ -88,7 +86,6 @@
         .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
 
-        /* Кнопка стрибка справа */
         .action-buttons {
             position: absolute;
             bottom: 30px;
@@ -115,7 +112,6 @@
         .jump-btn:active {
             transform: scale(0.92);
         }
-        /* Меню */
         .overlay {
             position: absolute;
             top: 0;
@@ -154,7 +150,6 @@
 
     <div id="canvas-container"></div>
 
-    <!-- HUD (Інтерфейс) -->
     <div class="hud">
         <div class="top-stats">
             <div class="badge" id="stageBadge">Stage 1</div>
@@ -162,26 +157,22 @@
         </div>
     </div>
 
-    <!-- Кнопки руху (Стрілки) -->
     <div class="controls-panel">
         <div class="ctrl-btn btn-up" id="upBtn">⬆️</div>
         <div class="ctrl-btn btn-left" id="leftBtn">⬅️</div>
         <div class="ctrl-btn btn-right" id="rightBtn">➡️</div>
     </div>
 
-    <!-- Кнопка стрибка -->
     <div class="action-buttons">
         <button class="jump-btn" id="jumpBtn">СТРИБОК</button>
     </div>
 
-    <!-- Головне меню -->
     <div class="overlay" id="startMenu">
         <h1>ROBLOX OBBY 3D</h1>
-        <p>Використовуйте стрілки для пересування вперед і в сторони, збирайте зірки та стрибайте по платформах!</p>
+        <p>Використовуйте стрілки для керування, збирайте зірки та стрибайте по платформах!</p>
         <button class="btn-main" id="startBtn">ГРАТИ</button>
     </div>
 
-    <!-- Меню перемоги / програшу -->
     <div class="overlay hidden" id="gameOverMenu">
         <h1 id="menuTitle">ПАДІННЯ!</h1>
         <p id="menuText">Ви впали з платформи.</p>
@@ -210,23 +201,20 @@
         let currentStage = 1;
         let isPlaying = false;
 
-        // Позиція гравця та фізика
-        const playerPos = new THREE.Vector3(0, 1, 0);
+        const playerPos = new THREE.Vector3(0, 1.25, 0);
         let playerVelocityY = 0;
-        const gravity = -0.015;
-        const jumpForce = 0.32;
+        const gravity = -0.012;
+        const jumpForce = 0.28;
         let isGrounded = false;
 
-        // Прапорці для керування стрілками
         let moveForward = false;
         let moveLeft = false;
         let moveRight = false;
 
-        // 1. Сцена, Камера, Рендерер
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x87CEEB);
-        scene.fog = new THREE.Fog(0x87CEEB, 20, 60);
+        scene.fog = new THREE.Fog(0x87CEEB, 25, 70);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
 
@@ -235,14 +223,12 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Світло
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
         const sun = new THREE.DirectionalLight(0xffffff, 0.8);
         sun.position.set(10, 20, 10);
         scene.add(sun);
 
-        // 2. Створення платформ (Obby світи)
         const platforms = [];
         const stars = [];
 
@@ -253,10 +239,10 @@
             stars.length = 0;
 
             let zPos = 0;
-            for (let i = 0; i < 20; i++) {
-                const width = 3;
-                const height = 0.5;
-                const depth = 3;
+            for (let i = 0; i < 25; i++) {
+                const width = 3.5;
+                const height = 0.6;
+                const depth = 3.5;
                 
                 const geom = new THREE.BoxGeometry(width, height, depth);
                 const mat = new THREE.MeshStandardMaterial({ 
@@ -265,7 +251,7 @@
                 });
                 const platform = new THREE.Mesh(geom, mat);
 
-                let xPos = (i === 0) ? 0 : (Math.random() - 0.5) * 4;
+                let xPos = (i === 0) ? 0 : (Math.random() - 0.5) * 4.5;
                 if (i === 0) zPos = 0;
                 else zPos -= 4.5;
 
@@ -277,14 +263,13 @@
                     const starGeo = new THREE.OctahedronGeometry(0.4);
                     const starMat = new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.5 });
                     const star = new THREE.Mesh(starGeo, starMat);
-                    star.position.set(xPos, 1.2, zPos);
+                    star.position.set(xPos, 1.3, zPos);
                     scene.add(star);
                     stars.push(star);
                 }
             }
         }
 
-        // 3. Створення персонажа
         const playerGroup = new THREE.Group();
 
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c });
@@ -299,7 +284,6 @@
 
         scene.add(playerGroup);
 
-        // 4. Обробка натискань кнопок керування
         function bindButton(id, onDown, onUp) {
             const btn = document.getElementById(id);
             btn.addEventListener('pointerdown', (e) => { e.preventDefault(); onDown(); });
@@ -311,7 +295,6 @@
         bindButton('leftBtn', () => moveLeft = true, () => moveLeft = false);
         bindButton('rightBtn', () => moveRight = true, () => moveRight = false);
 
-        // Стрибок
         document.getElementById('jumpBtn').addEventListener('click', () => {
             if (isGrounded && isPlaying) {
                 playerVelocityY = jumpForce;
@@ -320,14 +303,13 @@
             }
         });
 
-        // Старт гри
         function startGame() {
             score = 0;
             currentStage = 1;
             document.getElementById('scoreBadge').innerText = `⭐ ${score}`;
             document.getElementById('stageBadge').innerText = `Stage ${currentStage}`;
 
-            playerPos.set(0, 1, 0);
+            playerPos.set(0, 1.25, 0);
             playerVelocityY = 0;
             createLevel();
 
@@ -348,46 +330,45 @@
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('restartBtn').addEventListener('click', startGame);
 
-        // 5. Ігровий цикл
         function animate() {
             requestAnimationFrame(animate);
 
             if (isPlaying) {
-                const speed = 0.1;
+                const speed = 0.08;
                 if (moveForward) playerPos.z -= speed;
                 if (moveLeft) playerPos.x -= speed;
                 if (moveRight) playerPos.x += speed;
 
-                // Гравітація та стрибок
                 playerVelocityY += gravity;
                 playerPos.y += playerVelocityY;
 
-                // Перевірка приземлення на платформи
                 isGrounded = false;
+                const playerRadius = 0.4;
+                const platformSurfaceY = 0.3; // Верхня границя платформи (висота 0.6 / 2)
+
                 platforms.forEach(p => {
-                    const pBox = new THREE.Box3().setFromObject(p);
+                    // Перевіряємо горизонтальні межі платформи з урахуванням ширини гравця
                     if (
-                        playerPos.x > pBox.min.x - 0.4 && playerPos.x < pBox.max.x + 0.4 &&
-                        playerPos.z > pBox.min.z - 0.4 && playerPos.z < pBox.max.z + 0.4
+                        playerPos.x > p.position.x - 1.8 && playerPos.x < p.position.x + 1.8 &&
+                        playerPos.z > p.position.z - 1.8 && playerPos.z < p.position.z + 1.8
                     ) {
-                        if (playerPos.y >= pBox.max.y - 0.3 && playerPos.y <= pBox.max.y + 0.4 && playerVelocityY <= 0) {
-                            playerPos.y = pBox.max.y;
+                        // Якщо падаємо зверху і знаходимося на рівні платформи
+                        if (playerVelocityY <= 0 && playerPos.y >= platformSurfaceY && playerPos.y <= platformSurfaceY + 0.6) {
+                            playerPos.y = platformSurfaceY + 0.65; // Чітко фіксуємо на поверхні
                             playerVelocityY = 0;
                             isGrounded = true;
                         }
                     }
                 });
 
-                // Падіння у прірву
                 if (playerPos.y < -10) {
                     gameOver("ПАДІННЯ!");
                 }
 
-                // Збір зірок
                 for (let i = stars.length - 1; i >= 0; i--) {
                     let s = stars[i];
                     s.rotation.y += 0.05;
-                    if (playerPos.distanceTo(s.position) < 1.0) {
+                    if (playerPos.distanceTo(s.position) < 1.2) {
                         score += 1;
                         document.getElementById('scoreBadge').innerText = `⭐ ${score}`;
                         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -398,11 +379,10 @@
 
                 playerGroup.position.copy(playerPos);
 
-                // Слідування камери за гравцем
                 camera.position.x += (playerPos.x - camera.position.x) * 0.1;
-                camera.position.y += (playerPos.y + 4 - camera.position.y) * 0.1;
-                camera.position.z += (playerPos.z + 6 - camera.position.z) * 0.1;
-                camera.lookAt(playerPos.x, playerPos.y + 1, playerPos.z);
+                camera.position.y += (playerPos.y + 3.5 - camera.position.y) * 0.1;
+                camera.position.z += (playerPos.z + 5.5 - camera.position.z) * 0.1;
+                camera.lookAt(playerPos.x, playerPos.y, playerPos.z);
             }
 
             renderer.render(scene, camera);
