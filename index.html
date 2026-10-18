@@ -28,7 +28,7 @@
             height: 100%;
             z-index: 1;
         }
-        /* Інтерфейс у стилі Roblox */
+        /* HUD Інтерфейс */
         .hud {
             position: absolute;
             top: 0;
@@ -56,38 +56,43 @@
             font-size: 16px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
-        /* Джойстик ліворуч */
-        .joystick-area {
+        /* Панель керування стрілками */
+        .controls-panel {
             position: absolute;
-            bottom: 30px;
-            left: 30px;
-            width: 130px;
-            height: 130px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
+            bottom: 25px;
+            left: 20px;
             z-index: 12;
+            display: grid;
+            grid-template-columns: 65px 65px 65px;
+            grid-template-rows: 65px 65px;
+            gap: 8px;
             pointer-events: auto;
-            touch-action: none;
+        }
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid #fff;
+            border-radius: 16px;
+            font-size: 26px;
+            color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        .joystick-knob {
-            width: 55px;
-            height: 55px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            position: absolute;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            pointer-events: none;
-            transition: transform 0.05s linear;
+            cursor: pointer;
         }
-        /* Кнопка стрибка праворуч */
+        .ctrl-btn:active {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0.95);
+        }
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+
+        /* Кнопка стрибка справа */
         .action-buttons {
             position: absolute;
-            bottom: 40px;
-            right: 30px;
+            bottom: 30px;
+            right: 25px;
             z-index: 12;
             pointer-events: auto;
         }
@@ -97,7 +102,7 @@
             background: linear-gradient(135deg, #FFD700, #FFA500);
             border: 4px solid #fff;
             border-radius: 50%;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 900;
             color: #fff;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
@@ -157,9 +162,11 @@
         </div>
     </div>
 
-    <!-- Джойстик керування рухом -->
-    <div class="joystick-area" id="joystickArea">
-        <div class="joystick-knob" id="joystickKnob"></div>
+    <!-- Кнопки руху (Стрілки) -->
+    <div class="controls-panel">
+        <div class="ctrl-btn btn-up" id="upBtn">⬆️</div>
+        <div class="ctrl-btn btn-left" id="leftBtn">⬅️</div>
+        <div class="ctrl-btn btn-right" id="rightBtn">➡️</div>
     </div>
 
     <!-- Кнопка стрибка -->
@@ -170,7 +177,7 @@
     <!-- Головне меню -->
     <div class="overlay" id="startMenu">
         <h1>ROBLOX OBBY 3D</h1>
-        <p>Керуйте персонажем за допомогою джойстика, збирайте зірки та стрибайте по платформах!</p>
+        <p>Використовуйте стрілки для пересування вперед і в сторони, збирайте зірки та стрибайте по платформах!</p>
         <button class="btn-main" id="startBtn">ГРАТИ</button>
     </div>
 
@@ -203,21 +210,22 @@
         let currentStage = 1;
         let isPlaying = false;
 
-        // Змінні гравця та фізики
+        // Позиція гравця та фізика
         const playerPos = new THREE.Vector3(0, 1, 0);
         let playerVelocityY = 0;
         const gravity = -0.015;
         const jumpForce = 0.32;
         let isGrounded = false;
 
-        // Управління джойстиком
-        let moveX = 0;
-        let moveZ = 0;
+        // Прапорці для керування стрілками
+        let moveForward = false;
+        let moveLeft = false;
+        let moveRight = false;
 
         // 1. Сцена, Камера, Рендерер
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB); // Блакитне небо
+        scene.background = new THREE.Color(0x87CEEB);
         scene.fog = new THREE.Fog(0x87CEEB, 20, 60);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -239,27 +247,24 @@
         const stars = [];
 
         function createLevel() {
-            // Очищення старих платформ
             platforms.forEach(p => scene.remove(p));
             stars.forEach(s => scene.remove(s));
             platforms.length = 0;
             stars.length = 0;
 
-            // Створюємо шлях з блоків (як в Оббі)
             let zPos = 0;
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 20; i++) {
                 const width = 3;
                 const height = 0.5;
                 const depth = 3;
                 
                 const geom = new THREE.BoxGeometry(width, height, depth);
                 const mat = new THREE.MeshStandardMaterial({ 
-                    color: i % 2 === 0 ? 0x2ecc71 : 0x3498db, // Зелені та сині блоки
+                    color: i % 2 === 0 ? 0x2ecc71 : 0x3498db,
                     roughness: 0.3 
                 });
                 const platform = new THREE.Mesh(geom, mat);
 
-                // Змінюємо позицію у випадковому порядку зліва направо
                 let xPos = (i === 0) ? 0 : (Math.random() - 0.5) * 4;
                 if (i === 0) zPos = 0;
                 else zPos -= 4.5;
@@ -268,7 +273,6 @@
                 scene.add(platform);
                 platforms.push(platform);
 
-                // Додаємо золоту зірку над платформою
                 if (i > 0) {
                     const starGeo = new THREE.OctahedronGeometry(0.4);
                     const starMat = new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.5 });
@@ -280,16 +284,14 @@
             }
         }
 
-        // 3. Створення блочного персонажа (у стилі Roblox)
+        // 3. Створення персонажа
         const playerGroup = new THREE.Group();
 
-        // Тіло
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c });
         const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 0.4), bodyMat);
         body.position.y = 0.5;
         playerGroup.add(body);
 
-        // Голова
         const headMat = new THREE.MeshStandardMaterial({ color: 0xf1c40f });
         const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), headMat);
         head.position.y = 1.3;
@@ -297,47 +299,17 @@
 
         scene.add(playerGroup);
 
-        // 4. Логіка Джойстика
-        const joystickArea = document.getElementById('joystickArea');
-        const joystickKnob = document.getElementById('joystickKnob');
-        let joystickCenter = { x: 0, y: 0 };
-        let isTouching = false;
-
-        joystickArea.addEventListener('pointerdown', (e) => {
-            isTouching = true;
-            const rect = joystickArea.getBoundingClientRect();
-            joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-            updateJoystick(e.clientX, e.clientY);
-        });
-
-        window.addEventListener('pointermove', (e) => {
-            if (!isTouching) return;
-            updateJoystick(e.clientX, e.clientY);
-        });
-
-        window.addEventListener('pointerup', () => {
-            if (!isTouching) return;
-            isTouching = false;
-            moveX = 0;
-            moveZ = 0;
-            joystickKnob.style.transform = `translate(0px, 0px)`;
-        });
-
-        function updateJoystick(clientX, clientY) {
-            let dx = clientX - joystickCenter.x;
-            let dy = clientY - joystickCenter.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const maxDist = 40;
-
-            if (dist > maxDist) {
-                dx = (dx / dist) * maxDist;
-                dy = (dy / dist) * maxDist;
-            }
-
-            joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
-            moveX = dx / maxDist;
-            moveZ = dy / maxDist;
+        // 4. Обробка натискань кнопок керування
+        function bindButton(id, onDown, onUp) {
+            const btn = document.getElementById(id);
+            btn.addEventListener('pointerdown', (e) => { e.preventDefault(); onDown(); });
+            btn.addEventListener('pointerup', (e) => { e.preventDefault(); onUp(); });
+            btn.addEventListener('pointerleave', (e) => { e.preventDefault(); onUp(); });
         }
+
+        bindButton('upBtn', () => moveForward = true, () => moveForward = false);
+        bindButton('leftBtn', () => moveLeft = true, () => moveLeft = false);
+        bindButton('rightBtn', () => moveRight = true, () => moveRight = false);
 
         // Стрибок
         document.getElementById('jumpBtn').addEventListener('click', () => {
@@ -376,15 +348,15 @@
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('restartBtn').addEventListener('click', startGame);
 
-        // 5. Ігровий цикл (Game Loop)
+        // 5. Ігровий цикл
         function animate() {
             requestAnimationFrame(animate);
 
             if (isPlaying) {
-                // Переміщення гравця джойстиком
                 const speed = 0.1;
-                playerPos.x += moveX * speed;
-                playerPos.z += moveZ * speed;
+                if (moveForward) playerPos.z -= speed;
+                if (moveLeft) playerPos.x -= speed;
+                if (moveRight) playerPos.x += speed;
 
                 // Гравітація та стрибок
                 playerVelocityY += gravity;
@@ -394,12 +366,10 @@
                 isGrounded = false;
                 platforms.forEach(p => {
                     const pBox = new THREE.Box3().setFromObject(p);
-                    // Перевіряємо чи гравець над платформою
                     if (
                         playerPos.x > pBox.min.x - 0.4 && playerPos.x < pBox.max.x + 0.4 &&
                         playerPos.z > pBox.min.z - 0.4 && playerPos.z < pBox.max.z + 0.4
                     ) {
-                        // Якщо падає на поверхню блоку
                         if (playerPos.y >= pBox.max.y - 0.3 && playerPos.y <= pBox.max.y + 0.4 && playerVelocityY <= 0) {
                             playerPos.y = pBox.max.y;
                             playerVelocityY = 0;
@@ -426,10 +396,9 @@
                     }
                 }
 
-                // Оновлення позиції 3D-моделі
                 playerGroup.position.copy(playerPos);
 
-                // Плавне слідування камери за гравцем (як у Roblox)
+                // Слідування камери за гравцем
                 camera.position.x += (playerPos.x - camera.position.x) * 0.1;
                 camera.position.y += (playerPos.y + 4 - camera.position.y) * 0.1;
                 camera.position.z += (playerPos.z + 6 - camera.position.z) * 0.1;
