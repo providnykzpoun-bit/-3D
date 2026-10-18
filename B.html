@@ -22,13 +22,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 4px 0 8px 0;
+            justify-content: flex-start;
+            padding-top: 5px;
         }
 
         .hud {
             width: 100%;
-            padding: 4px 10px;
+            padding: 6px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -42,9 +42,9 @@
             background: rgba(255, 0, 127, 0.2);
             border: 1px solid #ff007f;
             color: #ff007f;
-            border-radius: 10px;
-            padding: 5px 8px;
-            font-size: 11px;
+            border-radius: 12px;
+            padding: 6px 10px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
@@ -55,10 +55,10 @@
         .badge {
             background: rgba(10, 10, 30, 0.7);
             border: 2px solid #00f0ff;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             color: #00f0ff;
             backdrop-filter: blur(5px);
         }
@@ -68,55 +68,55 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex: 0 0 auto;
+            margin-top: 5px;
         }
-        /* Зменшене поле, щоб усе ідеально вмістилося */
+        
+        /* Компактне поле, щоб усе гарантовано влізло */
         canvas#snakeCanvas {
             background: rgba(5, 5, 20, 0.9);
             border: 2px solid #00f0ff;
-            border-radius: 10px;
+            border-radius: 12px;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
             width: 280px;
             height: 280px;
-            max-width: 85vw;
-            max-height: 85vw;
         }
 
-        /* Підняті кнопки керування ближче до центру */
+        /* Фіксовані кнопки одразу під полем */
         .controls {
             width: 100%;
             max-width: 280px;
-            padding: 0 10px 10px 10px;
+            margin-top: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             z-index: 10;
         }
         .ctrl-row {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 15px;
             width: 100%;
         }
         .ctrl-btn {
-            background: rgba(0, 240, 255, 0.2);
+            background: rgba(0, 240, 255, 0.15);
             border: 2px solid #00f0ff;
-            border-radius: 14px;
+            border-radius: 16px;
             color: #00f0ff;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
-            height: 50px;
-            width: 80px;
+            height: 55px;
+            width: 85px;
             display: flex;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            touch-action: manipulation;
         }
         .ctrl-btn:active {
-            background: rgba(0, 240, 255, 0.5);
-            transform: scale(0.95);
+            background: rgba(0, 240, 255, 0.4);
+            transform: scale(0.93);
         }
 
         .overlay {
@@ -139,8 +139,8 @@
             background: linear-gradient(45deg, #ff007f, #00f0ff);
             border: 3px solid #fff;
             color: #fff;
-            padding: 12px 35px;
-            font-size: 16px;
+            padding: 14px 40px;
+            font-size: 18px;
             font-weight: bold;
             border-radius: 30px;
             cursor: pointer;
@@ -164,7 +164,7 @@
         <canvas id="snakeCanvas" width="300" height="300"></canvas>
     </div>
 
-    <!-- Кнопки підняті вище -->
+    <!-- Кнопки керування чітко під полем -->
     <div class="controls">
         <div class="ctrl-row">
             <div class="ctrl-btn" id="upBtn">▲</div>
@@ -178,28 +178,28 @@
 
     <!-- Стартове меню -->
     <div class="overlay" id="startMenu">
-        <h1 style="color: #ff007f; font-size: 26px; margin-bottom: 10px; text-transform: uppercase;">Cyber Snake</h1>
-        <p style="color: #ffd700; font-weight: bold; font-size: 15px; margin-bottom: 15px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
+        <h1 style="color: #ff007f; font-size: 28px; margin-bottom: 10px; text-transform: uppercase;">Cyber Snake</h1>
+        <p style="color: #ffd700; font-weight: bold; font-size: 16px; margin-bottom: 20px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
         <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
-        <a href="index.html" class="btn-hud" style="margin-top: 12px; padding: 8px 20px; font-size: 14px; display: inline-block;">🏠 В Головне Меню</a>
+        <a href="index.html" class="btn-hud" style="margin-top: 15px; padding: 10px 25px; font-size: 15px; display: inline-block;">🏠 В Головне Меню</a>
     </div>
 
     <!-- Пауза -->
     <div class="overlay hidden" id="pauseMenu">
-        <h1 style="color: #00f0ff; font-size: 26px; margin-bottom: 15px;">ПАУЗА</h1>
+        <h1 style="color: #00f0ff; font-size: 30px; margin-bottom: 20px;">ПАУЗА</h1>
         <button class="btn-main" id="resumeBtn">Продовжити</button>
         <br><br>
-        <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 14px; display: inline-block;">🏠 В Головне Меню</a>
+        <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px; display: inline-block;">🏠 В Головне Меню</a>
     </div>
 
     <!-- Програш -->
     <div class="overlay hidden" id="gameOverMenu">
-        <h1 style="color: #ff0055; font-size: 26px; margin-bottom: 10px;">ГРУ ЗАКІНЧЕНО</h1>
-        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px; font-size: 15px;">Довжина: 3</p>
-        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 15px; font-weight: bold; font-size: 15px;">Зароблено: +0 🪙</p>
+        <h1 style="color: #ff0055; font-size: 28px; margin-bottom: 10px;">ГРУ ЗАКІНЧЕНО</h1>
+        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px; font-size: 16px;">Довжина: 3</p>
+        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold; font-size: 16px;">Зароблено: +0 🪙</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ</button>
         <br><br>
-        <a href="index.html" class="btn-hud" style="padding: 8px 18px; font-size: 14px; display: inline-block;">🏠 В Головне Меню</a>
+        <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px; display: inline-block; margin-top: 10px;">🏠 В Головне Меню</a>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -318,8 +318,8 @@
             document.getElementById('pauseMenu').classList.add('hidden');
 
             clearInterval(gameInterval);
-            // Повільна швидкість (700 мс) для зручності
-            gameInterval = setInterval(main, 700);
+            // Ультра-повільна швидкість (600 мс) для зручного керування кнопками
+            gameInterval = setInterval(main, 600);
         }
 
         function togglePause() {
@@ -348,10 +348,23 @@
         document.getElementById('pauseBtn').addEventListener('click', togglePause);
         document.getElementById('resumeBtn').addEventListener('click', togglePause);
 
-        document.getElementById('upBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dy === 0) { nextDx = 0; nextDy = -1; } });
-        document.getElementById('downBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dy === 0) { nextDx = 0; nextDy = 1; } });
-        document.getElementById('leftBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dx === 0) { nextDx = -1; nextDy = 0; } });
-        document.getElementById('rightBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dx === 0) { nextDx = 1; nextDy = 0; } });
+        // Кнопки керування
+        function bindControl(id, newDx, newDy) {
+            const btn = document.getElementById(id);
+            btn.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                // Забороняємо різкий розворот назад у протилежний бік
+                if (newDx !== -dx || newDy !== -dy) {
+                    nextDx = newDx;
+                    nextDy = newDy;
+                }
+            });
+        }
+
+        bindControl('upBtn', 0, -1);
+        bindControl('downBtn', 0, 1);
+        bindControl('leftBtn', -1, 0);
+        bindControl('rightBtn', 1, 0);
 
         draw();
     </script>
