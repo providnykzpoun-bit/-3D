@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Neon Cyber Assault</title>
+    <title>Cyber Assault</title>
     <style>
         * {
             box-sizing: border-box;
@@ -160,6 +160,7 @@
             <a href="index.html" class="btn-hud">🏠 Меню</a>
             <button class="btn-hud" id="pauseBtn">⏸️</button>
         </div>
+        <div class="badge" id="livesBadge">❤️ 3</div>
         <div class="badge" id="scoreBadge">Збито: 0</div>
         <div class="badge" id="coinsBadge" style="border-color: #ffd700; color: #ffd700;">🪙 0</div>
     </div>
@@ -171,7 +172,7 @@
     <!-- Стартове меню -->
     <div class="overlay" id="startMenu">
         <h1 style="color: #ff007f; font-size: 26px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 10px #ff007f;">Cyber Assault</h1>
-        <p style="color: #00f0ff; font-size: 12px; margin-bottom: 8px;">Керуйте маневром та знищуйте ворожі дрони!</p>
+        <p style="color: #00f0ff; font-size: 12px; margin-bottom: 8px;">Дрон має 3 життя та захисний щит!</p>
         <p style="color: #ffd700; font-weight: bold; font-size: 14px; margin-bottom: 12px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
         
         <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
@@ -314,6 +315,14 @@
                     gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
                     osc.start(now);
                     osc.stop(now + 0.08);
+                } else if (type === 'hit') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(80, now + 0.15);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
                 } else if (type === 'explosion') {
                     osc.type = 'square';
                     osc.frequency.setValueAtTime(150, now);
@@ -335,6 +344,8 @@
         let particles = [];
         let score = 0;
         let sessionCoins = 0;
+        let lives = 3;
+        let invulnerableTimer = 0;
         let isPlaying = false;
         let isPaused = false;
         let frameCount = 0;
@@ -353,7 +364,10 @@
             particles = [];
             score = 0;
             sessionCoins = 0;
+            lives = 3;
+            invulnerableTimer = 0;
             frameCount = 0;
+            document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
         }
 
         function spawnEnemy() {
@@ -378,10 +392,27 @@
             }
         }
 
+        function hitPlayer() {
+            if (invulnerableTimer > 0) return;
+            lives--;
+            document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
+            playSound('hit');
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                invulnerableTimer = 60; // 1 секунда неагресивної незразковості / миготіння
+                player.velocity = -3; // невеличкий відскок
+            }
+        }
+
         function main() {
             if (!isPlaying || isPaused) return;
 
             frameCount++;
+            if (invulnerableTimer > 0) invulnerableTimer--;
+
             if (frameCount % 60 === 0) {
                 spawnEnemy();
             }
@@ -397,8 +428,8 @@
             player.y += player.velocity;
 
             if (player.y + player.radius >= canvas.height || player.y - player.radius <= 0) {
-                gameOver();
-                return;
+                hitPlayer();
+                if (lives > 0) player.y = canvas.height / 2;
             }
 
             // Кулі
@@ -422,8 +453,10 @@
                 // Зіткнення гравця з ворогом
                 let dist = Math.hypot(player.x - enemies[e].x, player.y - enemies[e].y);
                 if (dist < player.radius + enemies[e].radius) {
-                    gameOver();
-                    return;
+                    createExplosion(enemies[e].x, enemies[e].y, '#ff0055');
+                    enemies.splice(e, 1);
+                    hitPlayer();
+                    continue;
                 }
 
                 // Збиття ворога кулею
@@ -482,14 +515,17 @@
                 ctx.fillRect(p.x, p.y, 3, 3);
             });
 
-            // Гравець
-            let color = SKINS[currentSkin] || SKINS.cyan;
-            ctx.fillStyle = color;
-            ctx.shadowColor = color;
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
+            // Гравець (миготить, коли має незразковість / захист)
+            if (invulnerableTimer === 0 || Math.floor(invulnerableTimer / 4) % 2 === 0) {
+                let color = SKINS[currentSkin] || SKINS.cyan;
+                ctx.fillStyle = color;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 12;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
         }
 
         function flap() {
