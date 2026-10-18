@@ -23,11 +23,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            padding-bottom: 10px;
         }
 
         .hud {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -35,15 +36,15 @@
         }
         .hud-btns {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         .btn-hud {
             background: rgba(255, 0, 127, 0.2);
             border: 1px solid #ff007f;
             color: #ff007f;
             border-radius: 15px;
-            padding: 8px 12px;
-            font-size: 13px;
+            padding: 6px 10px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
@@ -54,12 +55,12 @@
         .badge {
             background: rgba(10, 10, 30, 0.7);
             border: 2px solid #00f0ff;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 5px 10px;
+            border-radius: 18px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             color: #00f0ff;
-            text-shadow: 0 0 10px rgba(0,240,255,0.6);
+            text-shadow: 0 0 8px rgba(0,240,255,0.6);
             backdrop-filter: blur(5px);
         }
 
@@ -68,49 +69,53 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 5px;
+            justify-content: center;
+            flex: 1;
         }
         canvas#snakeCanvas {
             background: rgba(5, 5, 20, 0.9);
             border: 2px solid #00f0ff;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            max-width: 90vw;
+            max-height: 45vh;
         }
 
         .controls {
             width: 100%;
-            max-width: 320px;
-            padding: 10px 15px 25px;
+            max-width: 280px;
+            padding: 5px 10px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             z-index: 10;
         }
         .ctrl-row {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             width: 100%;
         }
         .ctrl-btn {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.12);
             border: 2px solid #00f0ff;
-            border-radius: 15px;
+            border-radius: 16px;
             color: #00f0ff;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
-            height: 60px;
-            width: 85px;
+            height: 55px;
+            width: 75px;
             display: flex;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            touch-action: manipulation;
         }
         .ctrl-btn:active {
-            background: rgba(0, 240, 255, 0.3);
-            transform: scale(0.95);
+            background: rgba(0, 240, 255, 0.4);
+            transform: scale(0.92);
         }
 
         .overlay {
@@ -166,410 +171,4 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
         .shop-item-info { text-align: left; }
-        .shop-item-title { font-weight: bold; font-size: 14px; color: #fff; }
-        .shop-item-cost { font-size: 12px; color: #ffd700; }
-        .btn-buy {
-            background: #00f0ff;
-            color: #000;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .btn-buy.equipped { background: #ff007f; color: #fff; }
-    </style>
-</head>
-<body>
-
-    <div class="hud">
-        <div class="hud-btns">
-            <a href="index.html" class="btn-hud">🏠 Меню</a>
-            <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
-        </div>
-        <div class="badge" id="scoreBadge">Довжина: 3</div>
-        <div class="badge" id="coinsBadge" style="border-color: #ffd700; color: #ffd700;">🪙 0</div>
-    </div>
-
-    <div class="game-container">
-        <!-- Збільшено розмір ігрового поля до 340x340 -->
-        <canvas id="snakeCanvas" width="340" height="340"></canvas>
-    </div>
-
-    <div class="controls">
-        <div class="ctrl-row">
-            <div class="ctrl-btn" id="upBtn">▲</div>
-        </div>
-        <div class="ctrl-row">
-            <div class="ctrl-btn" id="leftBtn">◀</div>
-            <div class="ctrl-btn" id="downBtn">▼</div>
-            <div class="ctrl-btn" id="rightBtn">▶</div>
-        </div>
-    </div>
-
-    <!-- Стартове меню -->
-    <div class="overlay" id="startMenu">
-        <h1 style="color: #ff007f; font-size: 28px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 15px #ff007f;">Cyber Snake</h1>
-        <p style="color: #ffd700; font-weight: bold; font-size: 15px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
-        
-        <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
-        <button class="btn-hud" id="openShopBtn" style="margin-top: 12px; padding: 10px 20px; font-size: 14px; border-color: #00f0ff; color: #00f0ff; width: 100%;">🛒 Магазин скінів</button>
-        <button class="btn-hud" id="withdrawBtn" style="margin-top: 8px; padding: 10px 20px; font-size: 14px; border-color: #00ffaa; color: #00ffaa; width: 100%;">📤 Вивести UA Token</button>
-    </div>
-
-    <!-- Магазин -->
-    <div class="overlay hidden" id="shopMenu">
-        <h2 style="color: #00f0ff; font-size: 24px; margin-bottom: 5px;">🛒 Магазин скінів</h2>
-        <p style="color: #ffd700; font-size: 14px;">Ваші монети: <span id="shopCoinsTotal">0</span> 🪙</p>
-
-        <div class="shop-box">
-            <div style="color: #ff007f; font-size: 12px; text-align: left; margin-bottom: 5px; font-weight: bold;">СТИЛЬ ЗМІЙКИ</div>
-            
-            <div class="shop-item">
-                <div class="shop-item-info">
-                    <div class="shop-item-title">Неоновий Блакитний</div>
-                    <div class="shop-item-cost">Безкоштовно</div>
-                </div>
-                <button class="btn-buy" id="skinCyanBtn">Обрати</button>
-            </div>
-
-            <div class="shop-item">
-                <div class="shop-item-info">
-                    <div class="shop-item-title">Смарагдовий Кібер</div>
-                    <div class="shop-item-cost">500 🪙</div>
-                </div>
-                <button class="btn-buy" id="skinGreenBtn">Купити</button>
-            </div>
-
-            <div class="shop-item">
-                <div class="shop-item-info">
-                    <div class="shop-item-title">Вогняний Неон</div>
-                    <div class="shop-item-cost">1000 🪙</div>
-                </div>
-                <button class="btn-buy" id="skinRedBtn">Купити</button>
-            </div>
-        </div>
-
-        <button class="btn-main" id="closeShopBtn" style="padding: 10px 30px; font-size: 15px;">Назад</button>
-    </div>
-
-    <!-- Пауза -->
-    <div class="overlay hidden" id="pauseMenu">
-        <h1 style="color: #00f0ff; font-size: 32px; margin-bottom: 20px; text-transform: uppercase;">Пауза</h1>
-        <button class="btn-main" id="resumeBtn" style="margin-bottom: 15px;">Продовжити</button>
-        <br>
-        <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px;">🏠 В Головне Меню</a>
-    </div>
-
-    <!-- Програш -->
-    <div class="overlay hidden" id="gameOverMenu">
-        <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055; font-size: 28px; margin-bottom: 10px;">СІТКУ ПОРВАНО</h1>
-        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px;">Довжина: 3</p>
-        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Зароблено: +0 🪙</p>
-        <button class="btn-main" id="restartBtn">ЗНОВУ</button>
-        <br>
-        <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px; margin-top: 10px; display: inline-block;">В Головне Меню</a>
-    </div>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-    </script>
-
-    <script>
-        let coins = parseInt(localStorage.getItem('space_coins') || '0');
-        let currentSkin = localStorage.getItem('snake_skin') || 'cyan';
-        let ownedSkins = JSON.parse(localStorage.getItem('snake_owned_skins') || '["cyan"]');
-
-        function saveGameData() {
-            localStorage.setItem('space_coins', coins.toString());
-            localStorage.setItem('snake_skin', currentSkin);
-            localStorage.setItem('snake_owned_skins', JSON.stringify(ownedSkins));
-        }
-
-        function updateCoinsUI() {
-            document.getElementById('coinsTotal').innerText = coins.toLocaleString();
-            document.getElementById('shopCoinsTotal').innerText = coins.toLocaleString();
-            document.getElementById('coinsBadge').innerText = `🪙 ${coins}`;
-        }
-        updateCoinsUI();
-
-        // ВИВІД UA TOKEN
-        document.getElementById('withdrawBtn').addEventListener('click', () => {
-            const MIN_COINS = 50000;
-            const COINS_PER_UA = 1000;
-
-            if (coins < MIN_COINS) {
-                alert(`Мінімальна сума для виводу: 50 UA (${MIN_COINS.toLocaleString()} монет)!\nУ вас зараз: ${coins.toLocaleString()} монет.`);
-                return;
-            }
-
-            let username = 'Гравець';
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                let user = tg.initDataUnsafe.user;
-                username = user.username ? `@${user.username}` : `${user.first_name || ''} (ID: ${user.id})`;
-            }
-
-            let uaAmount = (coins / COINS_PER_UA).toFixed(1);
-            let reportText = `📤 ЗАЯВКА НА ВИВІД UA\n🎮 Гра: Cyber Snake\n👤 Нік: ${username}\n💰 Сума: ${uaAmount} UA (${coins} монет)`;
-
-            navigator.clipboard.writeText(reportText).then(() => {
-                alert('Чек виводу сформовано та скопійовано у буфер!\nЗараз ви перейдете в бот: надішліть йому цей текст.');
-            }).catch(() => {
-                alert(`Ваш чек:\n\n${reportText}\n\nНадішліть його у бот.`);
-            });
-
-            coins = 0;
-            saveGameData();
-            updateCoinsUI();
-
-            if (tg.openTelegramLink) {
-                tg.openTelegramLink('http://t.me/tokenpist_bot');
-            } else {
-                window.open('http://t.me/tokenpist_bot', '_blank');
-            }
-        });
-
-        // АУДІО
-        let audioCtx = null;
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function playSound(type) {
-            if (!audioCtx) return;
-            try {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                let now = audioCtx.currentTime;
-
-                if (type === 'eat') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(400, now);
-                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
-                    osc.start(now);
-                    osc.stop(now + 0.1);
-                } else if (type === 'die') {
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(200, now);
-                    osc.frequency.linearRampToValueAtTime(50, now + 0.3);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                }
-            } catch(e) {}
-        }
-
-        // ЛОГІКА ЗМІЙКИ
-        const canvas = document.getElementById('snakeCanvas');
-        const ctx = canvas.getContext('2d');
-        const gridSize = 20; // Збільшено розмір клітинки
-        const tileCount = canvas.width / gridSize;
-
-        let snake = [];
-        let food = { x: 5, y: 5 };
-        let dx = 1;
-        let dy = 0;
-        let nextDx = 1;
-        let nextDy = 0;
-        let score = 3;
-        let sessionCoins = 0;
-        let isPlaying = false;
-        let isPaused = false;
-        let gameInterval = null;
-
-        const SKINS = {
-            cyan: { head: '#00f0ff', body: '#0088cc' },
-            green: { head: '#00ff66', body: '#009933' },
-            red: { head: '#ff0033', body: '#cc0022' }
-        };
-
-        function resetGame() {
-            snake = [
-                { x: 8, y: 8 },
-                { x: 7, y: 8 },
-                { x: 6, y: 8 }
-            ];
-            dx = 1;
-            dy = 0;
-            nextDx = 1;
-            nextDy = 0;
-            score = 3;
-            sessionCoins = 0;
-            spawnFood();
-        }
-
-        function spawnFood() {
-            food.x = Math.floor(Math.random() * tileCount);
-            food.y = Math.floor(Math.random() * tileCount);
-            snake.forEach(part => {
-                if (part.x === food.x && part.y === food.y) spawnFood();
-            });
-        }
-
-        function main() {
-            if (!isPlaying || isPaused) return;
-
-            dx = nextDx;
-            dy = nextDy;
-
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-
-            // Перевірка стін
-            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                gameOver();
-                return;
-            }
-
-            // Перевірка самої себе
-            for (let i = 0; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    gameOver();
-                    return;
-                }
-            }
-
-            snake.unshift(head);
-
-            // З'їла їжу
-            if (head.x === food.x && head.y === food.y) {
-                score++;
-                coins += 10;
-                sessionCoins += 10;
-                saveGameData();
-                updateCoinsUI();
-                playSound('eat');
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                document.getElementById('scoreBadge').innerText = `Довжина: ${score}`;
-                spawnFood();
-            } else {
-                snake.pop();
-            }
-
-            draw();
-        }
-
-        function draw() {
-            ctx.fillStyle = '#050514';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Їжа
-            ctx.fillStyle = '#ff007f';
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#ff007f';
-            ctx.fillRect(food.x * gridSize + 1, food.y * gridSize + 1, gridSize - 2, gridSize - 2);
-            ctx.shadowBlur = 0;
-
-            // Змійка
-            const colors = SKINS[currentSkin] || SKINS.cyan;
-            snake.forEach((part, index) => {
-                ctx.fillStyle = index === 0 ? colors.head : colors.body;
-                ctx.fillRect(part.x * gridSize + 1, part.y * gridSize + 1, gridSize - 2, gridSize - 2);
-            });
-        }
-
-        function startGame() {
-            initAudio();
-            resetGame();
-            isPaused = false;
-            isPlaying = true;
-
-            document.getElementById('scoreBadge').innerText = `Довжина: ${score}`;
-            document.getElementById('startMenu').classList.add('hidden');
-            document.getElementById('gameOverMenu').classList.add('hidden');
-            document.getElementById('pauseMenu').classList.add('hidden');
-            document.getElementById('shopMenu').classList.add('hidden');
-
-            clearInterval(gameInterval);
-            // Зменшено швидкість (150 мс замість 120 мс) для комфортної гри
-            gameInterval = setInterval(main, 150);
-        }
-
-        function togglePause() {
-            if (!isPlaying) return;
-            isPaused = !isPaused;
-            const pauseMenu = document.getElementById('pauseMenu');
-            if (isPaused) {
-                pauseMenu.classList.remove('hidden');
-                document.getElementById('pauseBtn').innerText = '▶ Продовжити';
-            } else {
-                pauseMenu.classList.add('hidden');
-                document.getElementById('pauseBtn').innerText = '⏸️ Пауза';
-            }
-        }
-
-        function gameOver() {
-            isPlaying = false;
-            clearInterval(gameInterval);
-            playSound('die');
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            document.getElementById('finalScoreText').innerText = `Довжина: ${score}`;
-            document.getElementById('earnedCoinsText').innerText = `Зароблено: +${sessionCoins} 🪙`;
-            document.getElementById('gameOverMenu').classList.remove('hidden');
-        }
-
-        // МАГАЗИН СКІНІВ
-        function refreshShopUI() {
-            updateCoinsUI();
-
-            const setupSkin = (btnId, key, cost) => {
-                const btn = document.getElementById(btnId);
-                if (currentSkin === key) {
-                    btn.innerText = 'Обрано';
-                    btn.className = 'btn-buy equipped';
-                } else if (ownedSkins.includes(key)) {
-                    btn.innerText = 'Обрати';
-                    btn.className = 'btn-buy';
-                    btn.onclick = () => { currentSkin = key; saveGameData(); refreshShopUI(); };
-                } else {
-                    btn.innerText = 'Купити';
-                    btn.className = 'btn-buy';
-                    btn.onclick = () => {
-                        if (coins >= cost) {
-                            coins -= cost;
-                            ownedSkins.push(key);
-                            currentSkin = key;
-                            saveGameData();
-                            refreshShopUI();
-                        } else alert('Недостатньо монет!');
-                    };
-                }
-            };
-
-            setupSkin('skinCyanBtn', 'cyan', 0);
-            setupSkin('skinGreenBtn', 'green', 500);
-            setupSkin('skinRedBtn', 'red', 1000);
-        }
-
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('restartBtn').addEventListener('click', startGame);
-        document.getElementById('pauseBtn').addEventListener('click', togglePause);
-        document.getElementById('resumeBtn').addEventListener('click', togglePause);
-
-        document.getElementById('openShopBtn').addEventListener('click', () => {
-            refreshShopUI();
-            document.getElementById('shopMenu').classList.remove('hidden');
-        });
-        document.getElementById('closeShopBtn').addEventListener('click', () => {
-            refreshShopUI();
-            document.getElementById('shopMenu').classList.add('hidden');
-        });
-
-        // Керування стрілками
-        document.getElementById('upBtn').addEventListener('click', () => { if (dy === 0) { nextDx = 0; nextDy = -1; } });
-        document.getElementById('downBtn').addEventListener('click', () => { if (dy === 0) { nextDx = 0; nextDy = 1; } });
-        document.getElementById('leftBtn').addEventListener('click', () => { if (dx === 0) { nextDx = -1; nextDy = 0; } });
-        document.getElementById('rightBtn').addEventListener('click', () => { if (dx === 0) { nextDx = 1; nextDy = 0; } });
-
-        draw();
-    </script>
-</body>
-</html>
+        .shop-item-title { font-weight: bold; font-size: 14px; color: #fff
