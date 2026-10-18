@@ -70,6 +70,8 @@
             justify-content: center;
             margin-top: 5px;
             position: relative;
+            width: 100%;
+            flex: 1;
         }
         
         canvas#flappyCanvas {
@@ -78,10 +80,17 @@
             border-radius: 12px;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
             width: 320px;
-            height: 420px;
+            height: 400px;
             max-width: 92vw;
-            max-height: 70vh;
-            cursor: pointer;
+            max-height: 65vh;
+        }
+
+        .tap-instruction {
+            color: #00f0ff;
+            font-size: 14px;
+            margin-top: 8px;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0,240,255,0.5);
         }
 
         .overlay {
@@ -163,8 +172,9 @@
         <div class="badge" id="coinsBadge" style="border-color: #ffd700; color: #ffd700;">🪙 0</div>
     </div>
 
-    <div class="game-container">
-        <canvas id="flappyCanvas" width="320" height="420"></canvas>
+    <div class="game-container" id="gameArea">
+        <canvas id="flappyCanvas" width="320" height="380"></canvas>
+        <div class="tap-instruction">👆 Тисніть будь-де для зльоту!</div>
     </div>
 
     <!-- Стартове меню -->
@@ -180,7 +190,7 @@
 
     <!-- Магазин -->
     <div class="overlay hidden" id="shopMenu">
-        <h2 style="color: #00f0ff; font-size: 22px; margin-bottom: 4px;">🛒 Магазин дрифтерів</h2>
+        <h2 style="color: #00f0ff; font-size: 22px; margin-bottom: 4px;">🛒 Магазин скінів</h2>
         <p style="color: #ffd700; font-size: 13px; margin-bottom: 10px;">Монети: <span id="shopCoinsTotal">0</span> 🪙</p>
 
         <div class="shop-box">
@@ -335,8 +345,8 @@
         const canvas = document.getElementById('flappyCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Ультра-повільна гравітація та плавний стрибок
-        let bird = { x: 60, y: 200, radius: 14, gravity: 0.18, lift: -4.2, velocity: 0 };
+        // Ідеальна комфортна фізика
+        let bird = { x: 60, y: 180, radius: 14, gravity: 0.22, lift: -4.8, velocity: 0 };
         let pipes = [];
         let score = 0;
         let sessionCoins = 0;
@@ -351,7 +361,7 @@
         };
 
         function resetGame() {
-            bird.y = 200;
+            bird.y = 180;
             bird.velocity = 0;
             pipes = [];
             score = 0;
@@ -360,9 +370,9 @@
         }
 
         function spawnPipe() {
-            let gap = 130; // Ширший прохід
-            let minHeight = 60;
-            let maxHeight = canvas.height - gap - 60;
+            let gap = 135; // Широкий і зручний прохід
+            let minHeight = 50;
+            let maxHeight = canvas.height - gap - 50;
             let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
 
             pipes.push({
@@ -378,16 +388,15 @@
             if (!isPlaying || isPaused) return;
 
             frameCount++;
-            if (frameCount % 160 === 0) { // Труби з'являються повільніше
+            if (frameCount % 150 === 0) {
                 spawnPipe();
             }
 
-            // Плавна фізика пташки
             bird.velocity += bird.gravity;
             bird.y += bird.velocity;
 
-            // Межі екрана
-            if (bird.y + bird.radius >= canvas.height - 15) {
+            // Земля / стеля
+            if (bird.y + bird.radius >= canvas.height) {
                 gameOver();
                 return;
             }
@@ -396,9 +405,9 @@
                 bird.velocity = 0;
             }
 
-            // Труби (повільна швидкість руху)
+            // Труби
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 1.4;
+                pipes[i].x -= 1.8;
 
                 // Зіткнення
                 if (
@@ -410,7 +419,7 @@
                     return;
                 }
 
-                // Зарахування очок
+                // Очки
                 if (!pipes[i].passed && pipes[i].x + pipes[i].width < bird.x) {
                     pipes[i].passed = true;
                     score++;
@@ -446,7 +455,7 @@
             });
             ctx.shadowBlur = 0;
 
-            // Пташка / Дрон
+            // Дрон
             ctx.fillStyle = SKINS[currentSkin] || SKINS.cyan;
             ctx.shadowBlur = 12;
             ctx.shadowColor = ctx.fillStyle;
@@ -548,7 +557,8 @@
             document.getElementById('shopMenu').classList.add('hidden');
         });
 
-        canvas.addEventListener('pointerdown', (e) => {
+        // Надійний обробник дотиків на весь ігровий контейнер
+        document.getElementById('gameArea').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             flap();
         });
