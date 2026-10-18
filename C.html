@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Neon Flappy</title>
+    <title>Neon Cyber Assault</title>
     <style>
         * {
             box-sizing: border-box;
@@ -74,23 +74,15 @@
             flex: 1;
         }
         
-        canvas#flappyCanvas {
+        canvas#gameCanvas {
             background: rgba(5, 5, 20, 0.9);
             border: 2px solid #00f0ff;
             border-radius: 12px;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
             width: 320px;
-            height: 400px;
+            height: 420px;
             max-width: 92vw;
-            max-height: 65vh;
-        }
-
-        .tap-instruction {
-            color: #00f0ff;
-            font-size: 14px;
-            margin-top: 8px;
-            font-weight: bold;
-            text-shadow: 0 0 8px rgba(0,240,255,0.5);
+            max-height: 68vh;
         }
 
         .overlay {
@@ -168,18 +160,18 @@
             <a href="index.html" class="btn-hud">🏠 Меню</a>
             <button class="btn-hud" id="pauseBtn">⏸️</button>
         </div>
-        <div class="badge" id="scoreBadge">Рахунок: 0</div>
+        <div class="badge" id="scoreBadge">Збито: 0</div>
         <div class="badge" id="coinsBadge" style="border-color: #ffd700; color: #ffd700;">🪙 0</div>
     </div>
 
     <div class="game-container" id="gameArea">
-        <canvas id="flappyCanvas" width="320" height="380"></canvas>
-        <div class="tap-instruction">👆 Тисніть будь-де для зльоту!</div>
+        <canvas id="gameCanvas" width="320" height="420"></canvas>
     </div>
 
     <!-- Стартове меню -->
     <div class="overlay" id="startMenu">
-        <h1 style="color: #ff007f; font-size: 26px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 10px #ff007f;">Neon Flappy</h1>
+        <h1 style="color: #ff007f; font-size: 26px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 10px #ff007f;">Cyber Assault</h1>
+        <p style="color: #00f0ff; font-size: 12px; margin-bottom: 8px;">Керуйте маневром та знищуйте ворожі дрони!</p>
         <p style="color: #ffd700; font-weight: bold; font-size: 14px; margin-bottom: 12px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
         
         <button class="btn-main" id="startBtn">ПОЧАТИ ГРУ</button>
@@ -190,7 +182,7 @@
 
     <!-- Магазин -->
     <div class="overlay hidden" id="shopMenu">
-        <h2 style="color: #00f0ff; font-size: 22px; margin-bottom: 4px;">🛒 Магазин скінів</h2>
+        <h2 style="color: #00f0ff; font-size: 22px; margin-bottom: 4px;">🛒 Магазин бластерів</h2>
         <p style="color: #ffd700; font-size: 13px; margin-bottom: 10px;">Монети: <span id="shopCoinsTotal">0</span> 🪙</p>
 
         <div class="shop-box">
@@ -232,8 +224,8 @@
 
     <!-- Програш -->
     <div class="overlay hidden" id="gameOverMenu">
-        <h1 style="color: #ff0055; font-size: 26px; margin-bottom: 8px;">СІТКУ ЗБИТО</h1>
-        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 4px; font-size: 14px;">Рахунок: 0</p>
+        <h1 style="color: #ff0055; font-size: 26px; margin-bottom: 8px;">ДРОН ЗНИЩЕНО</h1>
+        <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 4px; font-size: 14px;">Збито ворогів: 0</p>
         <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 15px; font-weight: bold; font-size: 14px;">Зароблено: +0 🪙</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ</button>
         <br><br>
@@ -280,7 +272,7 @@
             }
 
             let uaAmount = (coins / COINS_PER_UA).toFixed(1);
-            let reportText = `📤 ЗАЯВКА НА ВИВІД UA\n🎮 Гра: Neon Flappy\n👤 Нік: ${username}\n💰 Сума: ${uaAmount} UA (${coins} монет)`;
+            let reportText = `📤 ЗАЯВКА НА ВИВІД UA\n🎮 Гра: Cyber Assault\n👤 Нік: ${username}\n💰 Сума: ${uaAmount} UA (${coins} монет)`;
 
             navigator.clipboard.writeText(reportText).then(() => {
                 alert('Чек виводу сформовано та скопійовано у буфер!\nЗараз ви перейдете в бот: надішліть йому цей текст.');
@@ -314,40 +306,33 @@
                 gain.connect(audioCtx.destination);
                 let now = audioCtx.currentTime;
 
-                if (type === 'jump') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                if (type === 'shoot') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
                     gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
                     osc.start(now);
-                    osc.stop(now + 0.1);
-                } else if (type === 'score') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(500, now);
-                    osc.frequency.setValueAtTime(800, now + 0.08);
-                    gain.gain.setValueAtTime(0.1, now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'explosion') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(30, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
                     gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
                     osc.start(now);
                     osc.stop(now + 0.2);
-                } else if (type === 'die') {
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(200, now);
-                    osc.frequency.linearRampToValueAtTime(50, now + 0.3);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
                 }
             } catch(e) {}
         }
 
-        const canvas = document.getElementById('flappyCanvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Супер-плавна фізика: дуже м'яка гравітація та повільний рух труб
-        let bird = { x: 60, y: 180, radius: 14, gravity: 0.14, lift: -3.8, velocity: 0 };
-        let pipes = [];
+        let player = { x: 50, y: 200, radius: 15, gravity: 0.2, lift: -4.5, velocity: 0 };
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
         let score = 0;
         let sessionCoins = 0;
         let isPlaying = false;
@@ -361,79 +346,108 @@
         };
 
         function resetGame() {
-            bird.y = 180;
-            bird.velocity = 0;
-            pipes = [];
+            player.y = 200;
+            player.velocity = 0;
+            bullets = [];
+            enemies = [];
+            particles = [];
             score = 0;
             sessionCoins = 0;
             frameCount = 0;
         }
 
-        function spawnPipe() {
-            let gap = 150; // Дуже широкий і зручний прохід
-            let minHeight = 40;
-            let maxHeight = canvas.height - gap - 40;
-            let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-
-            pipes.push({
-                x: canvas.width,
-                top: height,
-                bottom: height + gap,
-                width: 50,
-                passed: false
+        function spawnEnemy() {
+            let size = Math.random() * 15 + 15;
+            enemies.push({
+                x: canvas.width + 20,
+                y: Math.random() * (canvas.height - 60) + 30,
+                radius: size,
+                speed: Math.random() * 1.5 + 1.2
             });
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    life: 20,
+                    color: color
+                });
+            }
         }
 
         function main() {
             if (!isPlaying || isPaused) return;
 
             frameCount++;
-            if (frameCount % 200 === 0) { // Перешкоди з'являються рідше
-                spawnPipe();
+            if (frameCount % 60 === 0) {
+                spawnEnemy();
             }
 
-            bird.velocity += bird.gravity;
-            bird.y += bird.velocity;
+            // Авто-постріл кожні 25 кадрів
+            if (frameCount % 25 === 0) {
+                bullets.push({ x: player.x + 15, y: player.y, speed: 6 });
+                playSound('shoot');
+            }
 
-            // Земля / стеля
-            if (bird.y + bird.radius >= canvas.height) {
+            // Гравітація гравця
+            player.velocity += player.gravity;
+            player.y += player.velocity;
+
+            if (player.y + player.radius >= canvas.height || player.y - player.radius <= 0) {
                 gameOver();
                 return;
             }
-            if (bird.y - bird.radius <= 0) {
-                bird.y = bird.radius;
-                bird.velocity = 0;
+
+            // Кулі
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].x += bullets[i].speed;
+                if (bullets[i].x > canvas.width) bullets.splice(i, 1);
             }
 
-            // Труби (знижена швидкість руху вдвічі)
-            for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 1.0;
+            // Частки вибуху
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].x += particles[i].vx;
+                particles[i].y += particles[i].vy;
+                particles[i].life--;
+                if (particles[i].life <= 0) particles.splice(i, 1);
+            }
 
-                // Зіткнення
-                if (
-                    bird.x + bird.radius > pipes[i].x &&
-                    bird.x - bird.radius < pipes[i].x + pipes[i].width &&
-                    (bird.y - bird.radius < pipes[i].top || bird.y + bird.radius > pipes[i].bottom)
-                ) {
+            // Вороги
+            for (let e = enemies.length - 1; e >= 0; e--) {
+                enemies[e].x -= enemies[e].speed;
+
+                // Зіткнення гравця з ворогом
+                let dist = Math.hypot(player.x - enemies[e].x, player.y - enemies[e].y);
+                if (dist < player.radius + enemies[e].radius) {
                     gameOver();
                     return;
                 }
 
-                // Очки
-                if (!pipes[i].passed && pipes[i].x + pipes[i].width < bird.x) {
-                    pipes[i].passed = true;
-                    score++;
-                    coins += 5;
-                    sessionCoins += 5;
-                    saveGameData();
-                    updateCoinsUI();
-                    playSound('score');
-                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                    document.getElementById('scoreBadge').innerText = `Рахунок: ${score}`;
+                // Збиття ворога кулею
+                for (let b = bullets.length - 1; b >= 0; b--) {
+                    let bDist = Math.hypot(bullets[b].x - enemies[e].x, bullets[b].y - enemies[e].y);
+                    if (bDist < enemies[e].radius + 4) {
+                        createExplosion(enemies[e].x, enemies[e].y, '#ff007f');
+                        playSound('explosion');
+                        enemies.splice(e, 1);
+                        bullets.splice(b, 1);
+
+                        score++;
+                        coins += 10;
+                        sessionCoins += 10;
+                        saveGameData();
+                        updateCoinsUI();
+                        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+                        document.getElementById('scoreBadge').innerText = `Збито: ${score}`;
+                        break;
+                    }
                 }
 
-                if (pipes[i].x + pipes[i].width < 0) {
-                    pipes.splice(i, 1);
+                if (enemies[e] && enemies[e].x < -30) {
+                    enemies.splice(e, 1);
                 }
             }
 
@@ -445,31 +459,43 @@
             ctx.fillStyle = '#050514';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Труби
-            ctx.fillStyle = '#ff007f';
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#ff007f';
-            pipes.forEach(pipe => {
-                ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
-                ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+            // Кулі
+            ctx.fillStyle = '#00f0ff';
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#00f0ff';
+            bullets.forEach(b => {
+                ctx.fillRect(b.x, b.y - 2, 10, 4);
             });
-            ctx.shadowBlur = 0;
 
-            // Дрон
-            ctx.fillStyle = SKINS[currentSkin] || SKINS.cyan;
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = ctx.fillStyle;
+            // Вороги
+            ctx.fillStyle = '#ff0055';
+            ctx.shadowColor = '#ff0055';
+            enemies.forEach(e => {
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Вибухи
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 3, 3);
+            });
+
+            // Гравець
+            let color = SKINS[currentSkin] || SKINS.cyan;
+            ctx.fillStyle = color;
+            ctx.shadowColor = color;
             ctx.beginPath();
-            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
         }
 
         function flap() {
             if (!isPlaying || isPaused) return;
-            bird.velocity = bird.lift;
-            playSound('jump');
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            player.velocity = player.lift;
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
         function startGame() {
@@ -478,7 +504,7 @@
             isPaused = false;
             isPlaying = true;
 
-            document.getElementById('scoreBadge').innerText = `Рахунок: ${score}`;
+            document.getElementById('scoreBadge').innerText = `Збито: ${score}`;
             document.getElementById('startMenu').classList.add('hidden');
             document.getElementById('gameOverMenu').classList.add('hidden');
             document.getElementById('pauseMenu').classList.add('hidden');
@@ -503,9 +529,9 @@
 
         function gameOver() {
             isPlaying = false;
-            playSound('die');
+            playSound('explosion');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            document.getElementById('finalScoreText').innerText = `Рахунок: ${score}`;
+            document.getElementById('finalScoreText').innerText = `Збито ворогів: ${score}`;
             document.getElementById('earnedCoinsText').innerText = `Зароблено: +${sessionCoins} 🪙`;
             document.getElementById('gameOverMenu').classList.remove('hidden');
         }
