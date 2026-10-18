@@ -345,8 +345,8 @@
         const canvas = document.getElementById('flappyCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Ідеальна комфортна фізика
-        let bird = { x: 60, y: 180, radius: 14, gravity: 0.22, lift: -4.8, velocity: 0 };
+        // Супер-плавна фізика: дуже м'яка гравітація та повільний рух труб
+        let bird = { x: 60, y: 180, radius: 14, gravity: 0.14, lift: -3.8, velocity: 0 };
         let pipes = [];
         let score = 0;
         let sessionCoins = 0;
@@ -370,9 +370,9 @@
         }
 
         function spawnPipe() {
-            let gap = 135; // Широкий і зручний прохід
-            let minHeight = 50;
-            let maxHeight = canvas.height - gap - 50;
+            let gap = 150; // Дуже широкий і зручний прохід
+            let minHeight = 40;
+            let maxHeight = canvas.height - gap - 40;
             let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
 
             pipes.push({
@@ -388,7 +388,7 @@
             if (!isPlaying || isPaused) return;
 
             frameCount++;
-            if (frameCount % 150 === 0) {
+            if (frameCount % 200 === 0) { // Перешкоди з'являються рідше
                 spawnPipe();
             }
 
@@ -405,9 +405,9 @@
                 bird.velocity = 0;
             }
 
-            // Труби
+            // Труби (знижена швидкість руху вдвічі)
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 1.8;
+                pipes[i].x -= 1.0;
 
                 // Зіткнення
                 if (
@@ -557,7 +557,6 @@
             document.getElementById('shopMenu').classList.add('hidden');
         });
 
-        // Надійний обробник дотиків на весь ігровий контейнер
         document.getElementById('gameArea').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             flap();
