@@ -204,7 +204,7 @@
         <div class="ctrl-btn" id="rightBtn">▶</div>
     </div>
 
-    <!-- Меню старта -->
+    <!-- Меню старту -->
     <div class="overlay" id="startMenu">
         <h1 style="color: #ff007f; font-size: 28px; margin-bottom: 5px; text-transform: uppercase;">Space Striker 3D</h1>
         <p style="color: #ffd700; font-weight: bold; font-size: 16px;">Монети: <span id="coinsTotal">0</span> 🪙</p>
@@ -275,7 +275,7 @@
         <button class="btn-main" id="closeShopBtn" style="padding: 10px 30px; font-size: 15px;">Назад</button>
     </div>
 
-    <!-- Меню паузы -->
+    <!-- Меню паузи -->
     <div class="overlay hidden" id="pauseMenu">
         <h1 style="color: #00f0ff; font-size: 32px; margin-bottom: 20px; text-transform: uppercase;">Гра на паузі</h1>
         <button class="btn-main" id="resumeBtn" style="margin-bottom: 15px;">Продовжити</button>
@@ -283,11 +283,11 @@
         <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px;">🏠 В Головне Меню</a>
     </div>
 
-    <!-- Меню поражения -->
+    <!-- Меню програшу -->
     <div class="overlay hidden" id="gameOverMenu">
         <h1 style="color: #ff0055; text-shadow: 0 0 25px #ff0055; font-size: 30px; margin-bottom: 10px;">КОРАБЕЛЬ ЗБИТО</h1>
         <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 5px;">Ваш результат: 0 очок</p>
-        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Зароблено монет: +0 🪙</p>
+        <p id="earnedCoinsText" style="color: #ffd700; margin-bottom: 20px; font-weight: bold;">Зароблено в цьому бою: +0 🪙</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ В БІЙ</button>
         <br>
         <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px; margin-top: 10px; display: inline-block;">В Головне Меню</a>
@@ -342,7 +342,7 @@
         // Одразу оновлюємо монети на головному екрані при завантаженні
         updateCoinsUI();
 
-        // --- АУДИО ---
+        // --- АУДІО ---
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -490,10 +490,12 @@
         }
 
         let enemyTimer, shootTimer;
+        let sessionCoins = 0; // Монети за поточну гру
 
         function startGame() {
             initAudio();
             score = 0;
+            sessionCoins = 0;
             lives = 5 + (hasExtraLife ? 1 : 0);
             shipX = 0;
             isPaused = false;
@@ -538,15 +540,10 @@
             isPlaying = false;
             clearInterval(enemyTimer);
             clearInterval(shootTimer);
-            
-            let earnedCoins = Math.floor(score / 10);
-            coins += earnedCoins;
-            saveGameData();
-            updateCoinsUI();
 
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             document.getElementById('finalScoreText').innerText = `Ваш результат: ${score} очок`;
-            document.getElementById('earnedCoinsText').innerText = `Зароблено монет: +${earnedCoins} 🪙`;
+            document.getElementById('earnedCoinsText').innerText = `Зароблено в цьому бою: +${sessionCoins} 🪙`;
             document.getElementById('gameOverMenu').classList.remove('hidden');
         }
 
@@ -693,6 +690,13 @@
                         let l = lasers[j];
                         if (en.position.distanceTo(l.position) < 0.9) {
                             score += 100;
+                            
+                            // РЕАЛЬНИЙ ЧАС: кожні 100 очок одразу дають +10 монет і зберігаються!
+                            coins += 10;
+                            sessionCoins += 10;
+                            saveGameData();
+                            updateCoinsUI();
+
                             document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
                             playSound('explosion');
                             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
