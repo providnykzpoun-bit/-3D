@@ -239,10 +239,10 @@
             stars.length = 0;
 
             let zPos = 0;
-            for (let i = 0; i < 25; i++) {
-                const width = 3.5;
+            for (let i = 0; i < 30; i++) {
+                const width = 4.0;
                 const height = 0.6;
-                const depth = 3.5;
+                const depth = 4.0;
                 
                 const geom = new THREE.BoxGeometry(width, height, depth);
                 const mat = new THREE.MeshStandardMaterial({ 
@@ -251,9 +251,9 @@
                 });
                 const platform = new THREE.Mesh(geom, mat);
 
-                let xPos = (i === 0) ? 0 : (Math.random() - 0.5) * 4.5;
+                let xPos = (i === 0) ? 0 : (Math.random() - 0.5) * 4.0;
                 if (i === 0) zPos = 0;
-                else zPos -= 4.5;
+                else zPos -= 4.0;
 
                 platform.position.set(xPos, 0, zPos);
                 scene.add(platform);
@@ -342,24 +342,24 @@
                 playerVelocityY += gravity;
                 playerPos.y += playerVelocityY;
 
-                isGrounded = false;
-                const playerRadius = 0.4;
-                const platformSurfaceY = 0.3; // Верхня границя платформи (висота 0.6 / 2)
+                let onAnyPlatform = false;
+                const platformSurfaceY = 0.3;
 
                 platforms.forEach(p => {
-                    // Перевіряємо горизонтальні межі платформи з урахуванням ширини гравця
+                    // Збільшені межі, щоб персонаж впевнено ставав на блоки
                     if (
-                        playerPos.x > p.position.x - 1.8 && playerPos.x < p.position.x + 1.8 &&
-                        playerPos.z > p.position.z - 1.8 && playerPos.z < p.position.z + 1.8
+                        playerPos.x > p.position.x - 2.0 && playerPos.x < p.position.x + 2.0 &&
+                        playerPos.z > p.position.z - 2.0 && playerPos.z < p.position.z + 2.0
                     ) {
-                        // Якщо падаємо зверху і знаходимося на рівні платформи
-                        if (playerVelocityY <= 0 && playerPos.y >= platformSurfaceY && playerPos.y <= platformSurfaceY + 0.6) {
-                            playerPos.y = platformSurfaceY + 0.65; // Чітко фіксуємо на поверхні
+                        if (playerVelocityY <= 0 && playerPos.y >= platformSurfaceY && playerPos.y <= platformSurfaceY + 0.8) {
+                            playerPos.y = platformSurfaceY + 0.65;
                             playerVelocityY = 0;
-                            isGrounded = true;
+                            onAnyPlatform = true;
                         }
                     }
                 });
+
+                isGrounded = onAnyPlatform;
 
                 if (playerPos.y < -10) {
                     gameOver("ПАДІННЯ!");
