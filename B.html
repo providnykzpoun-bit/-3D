@@ -157,7 +157,6 @@
     </div>
 
     <div class="game-container">
-        <!-- Збільшено внутрішню роздільну здатність до 400x400 -->
         <canvas id="snakeCanvas" width="400" height="400"></canvas>
     </div>
 
@@ -314,7 +313,8 @@
             document.getElementById('pauseMenu').classList.add('hidden');
 
             clearInterval(gameInterval);
-            gameInterval = setInterval(main, 200);
+            // Ультра-повільна швидкість (600 мс на один крок) для зручного скріншота
+            gameInterval = setInterval(main, 600);
         }
 
         function togglePause() {
