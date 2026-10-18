@@ -49,16 +49,20 @@
         .badge {
             background: rgba(10, 10, 30, 0.7);
             border: 2px solid #00f0ff;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 15px;
+            font-size: 14px;
             color: #00f0ff;
             text-shadow: 0 0 10px rgba(0,240,255,0.6);
             backdrop-filter: blur(5px);
         }
-        .btn-home {
+        .hud-btns {
+            display: flex;
+            gap: 8px;
             pointer-events: auto;
+        }
+        .btn-hud {
             background: rgba(255, 0, 127, 0.2);
             border: 1px solid #ff007f;
             color: #ff007f;
@@ -68,6 +72,9 @@
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .controls-panel {
             position: absolute;
@@ -134,7 +141,10 @@
 
     <div class="hud">
         <div class="top-stats">
-            <a href="index.html" class="btn-home">🏠 Меню</a>
+            <div class="hud-btns">
+                <a href="index.html" class="btn-hud">🏠 Меню</a>
+                <button class="btn-hud" id="pauseBtn">⏸️ Пауза</button>
+            </div>
             <div class="badge" id="scoreBadge">Очки: 0</div>
             <div class="badge" id="livesBadge" style="border-color: #ff007f; color: #ff007f;">❤️ 3</div>
         </div>
@@ -148,8 +158,16 @@
     <!-- Меню старту -->
     <div class="overlay" id="startMenu">
         <h1 style="color: #ff007f; font-size: 32px; margin-bottom: 10px; text-transform: uppercase;">Space Striker 3D</h1>
-        <p style="color: #a5a5c7; margin-bottom: 20px; max-width: 300px;">Знищуйте ворожі кораблі та набирайте максимум очок!</p>
+        <p style="color: #a5a5c7; margin-bottom: 20px; max-width: 300px;">Знищуйте ворожі кораблі, стріляйте лазером та набирайте максимум очок!</p>
         <button class="btn-main" id="startBtn">ПОЧАТИ</button>
+    </div>
+
+    <!-- Меню паузи -->
+    <div class="overlay hidden" id="pauseMenu">
+        <h1 style="color: #00f0ff; font-size: 32px; margin-bottom: 20px; text-transform: uppercase;">Гра на паузі</h1>
+        <button class="btn-main" id="resumeBtn" style="margin-bottom: 15px;">Продовжити</button>
+        <br>
+        <a href="index.html" class="btn-hud" style="padding: 12px 25px; font-size: 16px;">🏠 В Головне Меню</a>
     </div>
 
     <!-- Меню програшу -->
@@ -158,7 +176,7 @@
         <p id="finalScoreText" style="color: #a5a5c7; margin-bottom: 20px;">Ваш результат: 0 очок</p>
         <button class="btn-main" id="restartBtn">ЗНОВУ В БІЙ</button>
         <br>
-        <a href="index.html" class="btn-home" style="padding: 10px 20px; font-size: 15px; margin-top: 10px;">В Головне Меню</a>
+        <a href="index.html" class="btn-hud" style="padding: 10px 20px; font-size: 15px; margin-top: 10px; display: inline-block;">В Головне Меню</a>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -182,10 +200,57 @@
         let score = 0;
         let lives = 3;
         let isPlaying = false;
+        let isPaused = false;
 
         let shipX = 0;
         let moveLeftFlag = false;
         let moveRightFlag = false;
+
+        // --- АУДІО СИСТЕМА (Без сторонніх файлів) ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            try {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                let now = audioCtx.currentTime;
+
+                if (type === 'shoot') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'explosion') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(30, now + 0.25);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'hit') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(80, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch(e) {}
+        }
 
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -235,7 +300,7 @@
         const lasers = [];
 
         function spawnEnemy() {
-            if (!isPlaying) return;
+            if (!isPlaying || isPaused) return;
             const enemy = new THREE.Mesh(new THREE.OctahedronGeometry(0.6), new THREE.MeshStandardMaterial({ color: 0xff0055, emissive: 0xff0055, emissiveIntensity: 0.5 }));
             enemy.position.set((Math.random() - 0.5) * 7, 0, -40);
             scene.add(enemy);
@@ -243,21 +308,25 @@
         }
 
         function shootLaser() {
-            if (!isPlaying) return;
+            if (!isPlaying || isPaused) return;
             const laser = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8, 8), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
             laser.rotation.x = Math.PI / 2;
             laser.position.set(shipGroup.position.x, shipGroup.position.y, shipGroup.position.z - 0.5);
             scene.add(laser);
             lasers.push(laser);
+
+            playSound('shoot');
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
         let enemyTimer, shootTimer;
 
         function startGame() {
+            initAudio();
             score = 0;
             lives = 3;
             shipX = 0;
+            isPaused = false;
             document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
             document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
 
@@ -268,12 +337,26 @@
 
             document.getElementById('startMenu').classList.add('hidden');
             document.getElementById('gameOverMenu').classList.add('hidden');
+            document.getElementById('pauseMenu').classList.add('hidden');
             isPlaying = true;
 
             clearInterval(enemyTimer);
             clearInterval(shootTimer);
             enemyTimer = setInterval(spawnEnemy, 700);
             shootTimer = setInterval(shootLaser, 350);
+        }
+
+        function togglePause() {
+            if (!isPlaying) return;
+            isPaused = !isPaused;
+            const pauseMenu = document.getElementById('pauseMenu');
+            if (isPaused) {
+                pauseMenu.classList.remove('hidden');
+                document.getElementById('pauseBtn').innerText = '▶ Продовжити';
+            } else {
+                pauseMenu.classList.add('hidden');
+                document.getElementById('pauseBtn').innerText = '⏸️ Пауза';
+            }
         }
 
         function gameOver() {
@@ -287,6 +370,8 @@
 
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('resumeBtn').addEventListener('click', togglePause);
 
         function bindBtn(id, onDown, onUp) {
             const el = document.getElementById(id);
@@ -300,6 +385,7 @@
         function animate() {
             requestAnimationFrame(animate);
 
+            // Рух зірок працює завжди для краси фону
             const positions = starField.geometry.attributes.position.array;
             for(let i=2; i<positions.length; i+=3) {
                 positions[i] += 0.4;
@@ -307,7 +393,7 @@
             }
             starField.geometry.attributes.position.needsUpdate = true;
 
-            if (isPlaying) {
+            if (isPlaying && !isPaused) {
                 const moveSpeed = 0.12;
                 if (moveLeftFlag && shipX > -3.5) shipX -= moveSpeed;
                 if (moveRightFlag && shipX < 3.5) shipX += moveSpeed;
@@ -334,6 +420,7 @@
                         if (en.position.distanceTo(l.position) < 0.9) {
                             score += 100;
                             document.getElementById('scoreBadge').innerText = `Очки: ${score}`;
+                            playSound('explosion');
                             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
                             scene.remove(en);
                             scene.remove(l);
@@ -346,6 +433,7 @@
                     if (shipGroup.position.distanceTo(en.position) < 1.0) {
                         lives--;
                         document.getElementById('livesBadge').innerText = `❤️ ${lives}`;
+                        playSound('hit');
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
                         scene.remove(en);
                         enemies.splice(i, 1);
