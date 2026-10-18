@@ -3,64 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>3D Runner Telegram Game</title>
+    <title>Cyberpunk Space Runner</title>
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #111;
-            font-family: Arial, sans-serif;
+        * {
+            box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
         }
-        #ui {
+        body {
+            background-color: #05050d;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        #canvas-container {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        /* UI Оверлей */
+        .hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
         }
-        #controls {
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .score-container {
+            background: rgba(15, 15, 35, 0.7);
+            border: 1px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            padding: 10px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+        }
+        .score-title {
+            font-size: 11px;
+            color: #00f0ff;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .score-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 0 10px #00f0ff;
+        }
+        /* Модальні вікна */
+        .overlay-screen {
             position: absolute;
-            bottom: 30px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 15, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        h1 {
+            font-size: 32px;
+            color: #ff007f;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px #ff007f;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #a0a0c0;
+            margin-bottom: 25px;
+            font-size: 14px;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+        .btn-main {
+            background: linear-gradient(45deg, #ff007f, #7928ca);
+            border: none;
+            color: white;
+            padding: 16px 45px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s;
+            pointer-events: auto;
+        }
+        .btn-main:active {
+            transform: scale(0.95);
+        }
+        /* Кнопки управління */
+        .controls-layer {
+            position: absolute;
+            bottom: 25px;
+            left: 0;
             width: 100%;
             display: flex;
-            justify-content: space-around;
-            z-index: 10;
+            justify-content: space-between;
+            padding: 0 25px;
+            z-index: 12;
+            pointer-events: auto;
         }
-        .btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
-            padding: 20px 35px;
-            font-size: 24px;
-            border-radius: 12px;
+        .ctrl-btn {
+            width: 75px;
+            height: 75px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(0, 240, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            color: #00f0ff;
             backdrop-filter: blur(5px);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
         }
-        .btn:active {
-            background: rgba(255, 255, 255, 0.5);
+        .ctrl-btn:active {
+            background: rgba(0, 240, 255, 0.3);
+            transform: scale(0.92);
+        }
+        .record-text {
+            font-size: 13px;
+            color: #ff007f;
+            margin-top: 8px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-    <div id="ui">Очки: <span id="score">0</span></div>
+    <div id="canvas-container"></div>
 
-    <!-- Кнопки управління для смартфона -->
-    <div id="controls">
-        <button class="btn" id="leftBtn">⬅️</button>
-        <button class="btn" id="rightBtn">➡️</button>
+    <!-- HUD під час гри -->
+    <div class="hud">
+        <div class="top-bar">
+            <div class="score-container">
+                <div class="score-title">Кристали</div>
+                <div class="score-val" id="score">0</div>
+            </div>
+            <div class="score-container" style="border-color: #ff007f; box-shadow: 0 0 15px rgba(255,0,127,0.3);">
+                <div class="score-title" style="color: #ff007f;">Рекорд</div>
+                <div class="score-val" id="highScore">0</div>
+            </div>
+        </div>
     </div>
 
+    <!-- Кнопки керування -->
+    <div class="controls-layer">
+        <div class="ctrl-btn" id="leftBtn">◀</div>
+        <div class="ctrl-btn" id="rightBtn">▶</div>
+    </div>
+
+    <!-- Меню Старт -->
+    <div class="overlay-screen" id="startMenu">
+        <h1>Cyber Runner</h1>
+        <p>Уникайте астероїдів та збирайте енергетичні кристали в космічному тунелі.</p>
+        <button class="btn-main" id="startBtn">Почати гру</button>
+    </div>
+
+    <!-- Меню Game Over -->
+    <div class="overlay-screen hidden" id="gameOverMenu">
+        <h1 style="color: #ff0055; text-shadow: 0 0 20px #ff0055;">Місію провалено</h1>
+        <p>Корабель зазнав пошкоджень!</p>
+        <div style="font-size: 22px; margin-bottom: 5px; color: #fff;">Зібрано: <span id="finalScore" style="color: #00f0ff; font-weight: bold;">0</span> 💎</div>
+        <div class="record-text" id="newRecordMsg"></div>
+        <br>
+        <button class="btn-main" id="restartBtn">Спробувати знову</button>
+    </div>
+
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
     </script>
 
+    <!-- Three.js -->
     <script type="importmap">
         {
             "imports": {
@@ -72,140 +219,255 @@
     <script type="module">
         import * as THREE from 'three';
 
+        // Змінні гри
         let score = 0;
-        let isGameOver = false;
-        let playerTrack = 1; // 0: Ліва, 1: Центр, 2: Права
-        const trackPositions = [-2, 0, 2];
+        let highScore = localStorage.getItem('cyber_runner_highscore') || 0;
+        let isPlaying = false;
+        let currentLane = 1; // 0: Ліва, 1: Центр, 2: Права
+        const laneX = [-2.2, 0, 2.2];
+        let gameSpeed = 0.45;
+
+        document.getElementById('highScore').innerText = highScore;
 
         // 1. Сцена та Камера
+        const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
-        scene.fog = new THREE.Fog(0x1a1a2e, 10, 50);
+        scene.background = new THREE.Color(0x050512);
+        scene.fog = new THREE.FogExp2(0x050512, 0.035);
 
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 3, 7);
-        camera.lookAt(0, 1, 0);
+        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 2.5, 6);
+        camera.lookAt(0, 1, -5);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
 
         // 2. Освітлення
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(5, 10, 7);
-        scene.add(dirLight);
+        const mainLight = new THREE.DirectionalLight(0x00f0ff, 1.5);
+        mainLight.position.set(0, 10, 5);
+        scene.add(mainLight);
 
-        // 3. Дорога (Платформа)
-        const roadGeo = new THREE.PlaneGeometry(7, 100);
-        const roadMat = new THREE.MeshStandardMaterial({ color: 0x16213e });
-        const road = new THREE.Mesh(roadGeo, roadMat);
-        road.rotation.x = -Math.PI / 2;
-        road.position.z = -40;
-        scene.add(road);
+        const pinkLight = new THREE.PointLight(0xff007f, 2, 20);
+        pinkLight.position.set(0, 2, -10);
+        scene.add(pinkLight);
 
-        // 4. Гравець (Яскрава сфера)
-        const playerGeo = new THREE.SphereGeometry(0.5, 32, 32);
-        const playerMat = new THREE.MeshStandardMaterial({ color: 0x00fff5, roughness: 0.2 });
-        const player = new THREE.Mesh(playerGeo, playerMat);
-        player.position.set(0, 0.5, 3);
-        scene.add(player);
+        // 3. Дорога та Сітка
+        const gridGeo = new THREE.PlaneGeometry(10, 150, 20, 150);
+        const gridMat = new THREE.MeshBasicMaterial({ 
+            color: 0x00f0ff, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.25
+        });
+        const grid = new THREE.Mesh(gridGeo, gridMat);
+        grid.rotation.x = -Math.PI / 2;
+        grid.position.z = -60;
+        scene.add(grid);
 
-        // 5. Перешкоди та Монети
+        // 4. Створення 3D-Корабля
+        const shipGroup = new THREE.Group();
+
+        // Корпус
+        const bodyGeo = new THREE.ConeGeometry(0.5, 1.8, 5);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x111122, metalness: 0.8, roughness: 0.2 });
+        const shipBody = new THREE.Mesh(bodyGeo, bodyMat);
+        shipBody.rotation.x = Math.PI / 2;
+        shipGroup.add(shipBody);
+
+        // Крила
+        const wingGeo = new THREE.BoxGeometry(1.8, 0.05, 0.6);
+        const wingMat = new THREE.MeshStandardMaterial({ color: 0xff007f, metalness: 0.5 });
+        const wings = new THREE.Mesh(wingGeo, wingMat);
+        wings.position.set(0, 0, 0.2);
+        shipGroup.add(wings);
+
+        // Світло двигуна
+        const engineGeo = new THREE.SphereGeometry(0.2, 16, 16);
+        const engineMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+        const engine = new THREE.Mesh(engineGeo, engineMat);
+        engine.position.set(0, 0, 0.9);
+        shipGroup.add(engine);
+
+        shipGroup.position.set(0, 0.5, 2);
+        scene.add(shipGroup);
+
+        // 5. Перешкоди (Астероїди) та Бонуси (Кристали)
         const obstacles = [];
-        const coins = [];
+        const crystals = [];
 
-        function spawnObstacle() {
-            if (isGameOver) return;
-            const geo = new THREE.BoxGeometry(1, 1, 1);
-            const mat = new THREE.MeshStandardMaterial({ color: 0xe94560 });
+        function createAsteroid() {
+            const size = 0.5 + Math.random() * 0.4;
+            const geo = new THREE.DodecahedronGeometry(size, 1);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x555577, roughness: 0.9 });
             const obs = new THREE.Mesh(geo, mat);
             const lane = Math.floor(Math.random() * 3);
-            obs.position.set(trackPositions[lane], 0.5, -40);
+            obs.position.set(laneX[lane], 0.5, -70);
+            obs.userData = { rotX: Math.random() * 0.04, rotY: Math.random() * 0.04 };
             scene.add(obs);
             obstacles.push(obs);
         }
 
-        function spawnCoin() {
-            if (isGameOver) return;
-            const geo = new THREE.CylinderGeometry(0.4, 0.4, 0.1, 16);
-            const mat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8 });
-            const coin = new THREE.Mesh(geo, mat);
-            coin.rotation.x = Math.PI / 2;
+        function createCrystal() {
+            const geo = new THREE.OctahedronGeometry(0.35, 0);
+            const mat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true });
+            const cry = new THREE.Mesh(geo, mat);
             const lane = Math.floor(Math.random() * 3);
-            coin.position.set(trackPositions[lane], 0.5, -40);
-            scene.add(coin);
-            coins.push(coin);
+            cry.position.set(laneX[lane], 0.6, -70);
+            scene.add(cry);
+            crystals.push(cry);
         }
 
-        setInterval(spawnObstacle, 1200);
-        setInterval(spawnCoin, 800);
+        let obstacleTimer, crystalTimer;
+
+        function startSpawning() {
+            obstacleTimer = setInterval(() => { if (isPlaying) createAsteroid(); }, 900);
+            crystalTimer = setInterval(() => { if (isPlaying) createCrystal(); }, 600);
+        }
+
+        function stopSpawning() {
+            clearInterval(obstacleTimer);
+            clearInterval(crystalTimer);
+        }
 
         // 6. Управління
         function moveLeft() {
-            if (playerTrack > 0 && !isGameOver) playerTrack--;
+            if (currentLane > 0 && isPlaying) {
+                currentLane--;
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            }
         }
+
         function moveRight() {
-            if (playerTrack < 2 && !isGameOver) playerTrack++;
+            if (currentLane < 2 && isPlaying) {
+                currentLane++;
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            }
         }
 
         document.getElementById('leftBtn').addEventListener('click', moveLeft);
         document.getElementById('rightBtn').addEventListener('click', moveRight);
 
-        // Управління свайпами
+        // Свайпи
         let touchStartX = 0;
         window.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
         window.addEventListener('touchend', e => {
             let diff = e.changedTouches[0].clientX - touchStartX;
-            if (diff > 30) moveRight();
-            if (diff < -30) moveLeft();
+            if (diff > 35) moveRight();
+            if (diff < -35) moveLeft();
         });
 
-        // 7. Ігровий цикл (Game Loop)
-        function animate() {
-            if (isGameOver) return;
+        // Клавіатура для ПК
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft();
+            if (e.key === 'ArrowRight' || e.key === 'd') moveRight();
+        });
 
-            requestAnimationFrame(animate);
+        // 7. Логіка гри
+        function startGame() {
+            // Очищення сцени від старих об'єктів
+            obstacles.forEach(o => scene.remove(o));
+            crystals.forEach(c => scene.remove(c));
+            obstacles.length = 0;
+            crystals.length = 0;
 
-            // Плавний перехід між смугами
-            player.position.x += (trackPositions[playerTrack] - player.position.x) * 0.2;
-            player.rotation.x -= 0.1; // ефект кочення
+            score = 0;
+            currentLane = 1;
+            gameSpeed = 0.45;
+            document.getElementById('score').innerText = score;
 
-            // Рух перешкод
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                let obs = obstacles[i];
-                obs.position.z += 0.35; // швидкість руху
+            document.getElementById('startMenu').classList.add('hidden');
+            document.getElementById('gameOverMenu').classList.add('hidden');
 
-                // Перевірка зіткнення з гравцем
-                if (obs.position.z > 2.5 && obs.position.z < 3.5 && Math.abs(obs.position.x - player.position.x) < 0.6) {
-                    isGameOver = true;
-                    alert('Game Over! Очки: ' + score);
-                    location.reload();
-                }
+            isPlaying = true;
+            startSpawning();
+        }
 
-                if (obs.position.z > 10) {
-                    scene.remove(obs);
-                    obstacles.splice(i, 1);
-                }
+        function gameOver() {
+            isPlaying = false;
+            stopSpawning();
+
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+
+            document.getElementById('finalScore').innerText = score;
+            const newRecordMsg = document.getElementById('newRecordMsg');
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cyber_runner_highscore', highScore);
+                document.getElementById('highScore').innerText = highScore;
+                newRecordMsg.innerText = "🎉 НОВИЙ РЕКОРД!";
+            } else {
+                newRecordMsg.innerText = "";
             }
 
-            // Рух монет
-            for (let i = coins.length - 1; i >= 0; i--) {
-                let coin = coins[i];
-                coin.position.z += 0.35;
-                coin.rotation.z += 0.05;
+            document.getElementById('gameOverMenu').classList.remove('hidden');
+        }
 
-                // Збір монети
-                if (coin.position.z > 2.5 && coin.position.z < 3.5 && Math.abs(coin.position.x - player.position.x) < 0.6) {
-                    score += 10;
-                    document.getElementById('score').innerText = score;
-                    scene.remove(coin);
-                    coins.splice(i, 1);
-                } else if (coin.position.z > 10) {
-                    scene.remove(coin);
-                    coins.splice(i, 1);
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+
+        // 8. Анімація та Game Loop
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isPlaying) {
+                // Поступове прискорення
+                gameSpeed += 0.00005;
+
+                // Плавне переміщення корабля
+                shipGroup.position.x += (laneX[currentLane] - shipGroup.position.x) * 0.18;
+                shipGroup.rotation.z = (shipGroup.position.x - laneX[currentLane]) * 0.3; // нахил при повороті
+                shipGroup.rotation.y = Math.sin(clock.getElapsedTime() * 5) * 0.05; // хитання
+
+                // Анімація дороги
+                grid.position.z += gameSpeed;
+                if (grid.position.z > -10) grid.position.z = -60;
+
+                // Обробка астероїдів
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    let obs = obstacles[i];
+                    obs.position.z += gameSpeed;
+                    obs.rotation.x += obs.userData.rotX;
+                    obs.rotation.y += obs.userData.rotY;
+
+                    // Зіткнення
+                    let dist = shipGroup.position.distanceTo(obs.position);
+                    if (dist < 0.8) {
+                        gameOver();
+                    }
+
+                    if (obs.position.z > 5) {
+                        scene.remove(obs);
+                        obstacles.splice(i, 1);
+                    }
+                }
+
+                // Обробка кристалів
+                for (let i = crystals.length - 1; i >= 0; i--) {
+                    let cry = crystals[i];
+                    cry.position.z += gameSpeed;
+                    cry.rotation.y += 0.05;
+
+                    // Збір бонусу
+                    let dist = shipGroup.position.distanceTo(cry.position);
+                    if (dist < 0.8) {
+                        score += 10;
+                        document.getElementById('score').innerText = score;
+                        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+                        scene.remove(cry);
+                        crystals.splice(i, 1);
+                    } else if (cry.position.z > 5) {
+                        scene.remove(cry);
+                        crystals.splice(i, 1);
+                    }
                 }
             }
 
@@ -214,6 +476,7 @@
 
         animate();
 
+        // Ресайз
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
